@@ -17,6 +17,7 @@
 - 维护 `figure-map.json`，记录图编号、图片路径、图注和裁剪状态。
 - 保留公式、变量、希腊字母、上下标、图号、表号、引用编号和章节结构。
 - 生成 reader-style HTML，支持目录、术语解释、MathJax、左右对照和打印样式。
+- 附带机械验证脚本，检查公式 source、并排公式块、图片引用、术语链接和 MathJax 配置。
 - 输出 `verification-report.md`，记录检查结果和未解决问题。
 
 ## 核心优势
@@ -96,7 +97,17 @@ structure factor（结构因子）：描述点过程或散射强度的核心函�
 
 这可以显著降低左右对照 HTML 中“英文栏和中文栏错位”的风险。
 
-### 5. 更好读的 HTML 阅读稿
+### 5. 机械验证脚本
+
+仓库内置验证脚本，用来检查常见的 full-reading-output 生成问题：
+
+```powershell
+python scripts\verify_translation_project.py path\to\translation-project
+```
+
+它会检查 `type: equation` 记录是否使用真实 LaTeX/math source，`pair-eq-*` 英文左栏是否不是描述性占位，公式数量是否匹配，图片引用是否存在，`term-*` 链接是否能跳转，以及 MathJax 配置是否存在。
+
+### 6. 更好读的 HTML 阅读稿
 
 默认 HTML 输出应是 paper reader，而不是原始 Markdown 转 HTML。
 
@@ -118,12 +129,17 @@ structure factor（结构因子）：描述点过程或散射强度的核心函�
 ```text
 .
 ├── SKILL.md
-└── agents/
-    └── openai.yaml
+├── agents/
+│   └── openai.yaml
+└── scripts/
+    ├── verify_translation_project.py
+    └── test_verify_translation_project.py
 ```
 
 - `SKILL.md` 是主 skill 指令。
 - `agents/openai.yaml` 是 OpenAI/Codex 使用的展示信息和默认提示。
+- `scripts/verify_translation_project.py` 用于检查生成后的翻译项目。
+- `scripts/test_verify_translation_project.py` 是验证脚本的回归测试。
 
 ## 安装方式
 

@@ -16,6 +16,7 @@ This repository contains the skill instructions for Codex. It is not a standalon
 - Extracts or maps figures through `figure-map.json` and keeps captions as translatable text.
 - Builds paragraph-level `alignment.json` for source-left / translation-right parallel reading.
 - Generates reader-style HTML with MathJax support, table of contents, terminology notes, parallel mode, and print/PDF CSS.
+- Ships a mechanical verification script for equation sources, parallel equation blocks, image references, term links, and MathJax configuration.
 - Requires a final `verification-report.md` so each translation unit is auditable.
 
 ## Key Advantages
@@ -89,6 +90,16 @@ The skill avoids fragile block-order matching such as "Chinese block N = English
 
 This helps prevent source-left / translation-right mismatch in parallel HTML readers.
 
+### Mechanical Verification
+
+The bundled script checks common full-reading-output failure modes:
+
+```powershell
+python scripts\verify_translation_project.py path\to\translation-project
+```
+
+It verifies that `type: equation` records use real LaTeX/math source, `pair-eq-*` source-left blocks are not prose placeholders, equation counts match, image references exist, `term-*` links resolve, and MathJax is configured.
+
 ### Reader-Style HTML Output
 
 The default HTML output is meant to be a paper reader, not a raw Markdown dump. It should support:
@@ -107,12 +118,17 @@ The default HTML output is meant to be a paper reader, not a raw Markdown dump. 
 ```text
 .
 ├── SKILL.md
-└── agents/
-    └── openai.yaml
+├── agents/
+│   └── openai.yaml
+└── scripts/
+    ├── verify_translation_project.py
+    └── test_verify_translation_project.py
 ```
 
 - `SKILL.md` contains the main Codex skill instructions.
 - `agents/openai.yaml` contains OpenAI-facing display metadata and the default prompt.
+- `scripts/verify_translation_project.py` checks generated translation projects.
+- `scripts/test_verify_translation_project.py` contains regression tests for the verifier.
 
 ## Installation
 

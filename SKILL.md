@@ -98,6 +98,9 @@ Use paragraph-level alignment for source-vs-translation comparison. This is the 
 - Treat PDF extraction blocks as raw material only. Do not fill `source` by sequentially taking the next block from `blocks.json` or another PDF extraction stream.
 - For PDF-derived sources, rebuild the English body flow before prose alignment: sort by page, column, vertical position, and horizontal position where available, then filter headers, DOI/journal metadata, authors, affiliations, figure captions, table text, footnotes, references, and other non-body noise.
 - Align by block type: headings use section mappings; equations use equation ids or LaTeX source; figures, captions, tables, and reference notes use their own source streams; only ordinary prose paragraphs enter the body paragraph alignment flow.
+- For `type: equation` alignment records, `source` must contain the actual source-side LaTeX/math expression, including equation numbers or `\tag{...}` when present. Do not use prose placeholders such as "Definitions of ..." or "Angular-averaged formulas ..." as equation source.
+- If PDF extraction cannot recover the original formula cleanly, use the normalized canonical LaTeX formula from the translated Markdown as the equation source because mathematical notation is language-neutral. Record this fallback in `notes`.
+- Equation records may be grouped, but grouped records must still contain every visible formula in the group, not a summary label.
 - For prose paragraphs, use stable block ids, section anchors, paragraph-start anchor phrases, nearby citations/equation references, or structured parser output. If an anchor spans until the next body anchor, record that decision in `source_ids` and `notes`.
 - If one source paragraph becomes multiple translation paragraphs, keep one alignment record with a translation array.
 - If multiple source paragraphs must be merged, use a `source_ids` array and explain the merge in `notes`.
@@ -244,6 +247,8 @@ When the user wants HTML:
 - Keep each aligned pair in a shared block so scrolling preserves source/translation proximity.
 - If source-left and translation-right content do not correspond, first inspect and regenerate `alignment.json`; the HTML renderer is usually only reflecting the alignment data it was given.
 - For equations, figures, and tables, align by block id and avoid duplicating large images in both columns unless the user asks for it.
+- In parallel mode, source-left equation blocks must render real MathJax/LaTeX formulas, not prose descriptions. Translation-right equation blocks should use the same canonical formula unless the source and translation intentionally differ.
+- If an equation alignment record lacks renderable LaTeX, stop and fix `alignment.json` or source extraction before shipping HTML.
 - Render kept-English or bilingual specialist terms as clickable and keyboard-focusable anchors in the translated text. Activating a term should jump to, scroll to, or reveal its Chinese explanation.
 - Term note targets should have stable ids derived from glossary entries, e.g. `term-structure-factor`, so repeated occurrences link to the same explanation.
 - When parallel mode is active, term explanations should become clickable/focus notes, an overlay, or a collapsible panel rather than a fixed third column.
@@ -257,6 +262,16 @@ When the user wants HTML:
 - Ensure term notes do not crowd formulas, figures, or captions.
 - Apply the Readable Layout Profile; do not ship a plain unstyled Markdown-to-HTML dump as the main reading output.
 - Rebuild HTML after any figure-map, translation, or formula-rendering change.
+
+## Bundled Verification Script
+
+This skill includes a mechanical project checker:
+
+```bash
+python path/to/article_translator/scripts/verify_translation_project.py path/to/translation-project
+```
+
+Use it before final reporting when `full-reading-output` includes `alignment.json` and HTML. The script checks equation sources, `pair-eq-*` source-left formula rendering, image references, `term-*` links, and MathJax configuration. Add its result to `verification-report.md` when practical.
 
 ## Verification Checklist
 
@@ -273,7 +288,14 @@ Before saying a chapter or output is complete, verify:
 - `alignment.json` is indexed by translated Markdown blocks, not by raw PDF extraction order.
 - PDF extraction noise such as page headers, DOI/journal metadata, authors, affiliations, captions, tables, footnotes, and references was filtered or routed into the correct non-body block type before prose alignment.
 - Headings, equations, figures, captions, tables, and reference notes were aligned by their own structural sources instead of being consumed from the prose paragraph stream.
+- Every `type: equation` record in `alignment.json` has a non-empty, renderable LaTeX/math `source`, normally with display delimiters, inline delimiters, or `\tag{...}` when numbered.
+- Equation `source` fields do not contain prose placeholder phrases such as "formulas", "Definitions of", "Volume-fraction variance", or "Angular-averaged".
+- Grouped equation records include every visible formula in the group, not just a summary label.
 - HTML parallel mode renders source-left and translation-right from `alignment.json` without losing formulas, captions, or figure/table references.
+- Every `pair-eq-*` block in parallel HTML has a source-left equation with real LaTeX/math and no prose placeholder phrase.
+- The count of source-left `pair-eq-*` equation blocks in parallel HTML matches the count of `type: equation` records in `alignment.json`.
+- Spot-check equations beyond the first few equations, not only Eq. (1)-(5).
+- Run `scripts/verify_translation_project.py` when the project has `alignment.json` and HTML, and record pass/fail output in `verification-report.md`.
 - Representative alignment spot checks pass across the document, including abstract, introduction, at least one core technical section, conclusion or discussion, and back matter such as conflicts of interest, acknowledgements, or references when present.
 - Specialist terms marked `keep-English`, `keep-English-first`, or `translate-with-English` in `glossary.md` are handled consistently in the translated text.
 - Specialist terms marked `keep-English`, `keep-English-first`, or `translate-with-English` preserve the complete English original at first or important occurrences, not only the Chinese rendering or an acronym.
