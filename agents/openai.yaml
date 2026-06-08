@@ -1,0 +1,7 @@
+interface:
+  display_name: "Article Translator"
+  short_description: "Translate academic papers with formulas, figures, terminology notes, parallel text, and readable outputs."
+  default_prompt: "Use $article_translator in full-reading-output mode to translate this academic article with preserved equations, figures, captions, complete English specialist terms, clickable Chinese term explanations formatted as English（Chinese）：explanation, terminology policy, translation-led and anchor-based paragraph-level alignment.json, no raw PDF block-order alignment, figure-map.json, source-left/translation-right reader-style HTML mode, readable layout profile, and verification-report.md."
+
+policy:
+  allow_implicit_invocation: true
