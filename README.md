@@ -1,5 +1,7 @@
 # Article Translator
 
+[中文版本](README.zh-CN.md)
+
 `article_translator` is a Codex skill for translating academic papers as reproducible translation projects, not as one-off text snippets. It is designed for PDFs, journal articles, reviews, theses, technical reports, and other long-form literature that contains equations, figures, captions, tables, citations, and specialized terminology.
 
 This repository contains the skill instructions for Codex. It is not a standalone translation application.
