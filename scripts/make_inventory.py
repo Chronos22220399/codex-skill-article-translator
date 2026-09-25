@@ -19,6 +19,9 @@ import re
 from pathlib import Path
 
 
+CAPTION_LINE = re.compile(r"^\*{0,2}(?:图|表|Figure|Table)\s*[0-9]+\s*[：:.。]")
+
+
 def slug(value: str) -> str:
     return re.sub(r"[^a-zA-Z0-9\u4e00-\u9fff]+", "-", value).strip("-").lower() or "section"
 
@@ -78,9 +81,11 @@ def parse(lines: list[str]) -> list[dict]:
             while lookahead < len(lines) and not lines[lookahead].strip():
                 lookahead += 1
             caption = ""
-            if lookahead < len(lines) and lines[lookahead].lstrip().startswith("**"):
+            if lookahead < len(lines) and CAPTION_LINE.match(lines[lookahead].strip()):
                 caption = lines[lookahead].strip()
                 i = lookahead
+                if number_match is None:
+                    number_match = re.search(r"(?:图|Figure)\s*([0-9]+)", caption)
             blocks.append({"id": nid("fig"), "type": "figure", "section": section,
                            "figure": int(number_match.group(1)) if number_match else None,
                            "path": path, "alt": alt, "translation": caption or alt})
@@ -105,7 +110,7 @@ def parse(lines: list[str]) -> list[dict]:
             blocks.append({"id": nid("table"), "type": "table", "section": section,
                            "table": number, "translation": "\n".join(rows)})
             continue
-        if stripped.startswith("**") and re.search(r"(?:图|表|Figure|Table)\s*[0-9]+", stripped):
+        if CAPTION_LINE.match(stripped):
             found = table_number(stripped)
             if found:
                 last_table = found
