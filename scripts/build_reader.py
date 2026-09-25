@@ -426,6 +426,7 @@ body.mode-parallel .source-left p { text-indent:0; }
 a { color:var(--link); }
 code { padding:1px 4px; background:#eef2f3; border-radius:3px; font:0.92em ui-monospace,SFMono-Regular,Menlo,monospace; }
 pre { overflow:auto; padding:16px 18px; background:#1f2b30; color:#eef8f5; border-radius:5px; line-height:1.55; }
+pre code { padding:0; background:transparent; border-radius:0; color:inherit; font:inherit; }
 blockquote { margin:18px 0; padding:11px 16px; border-left:4px solid var(--accent); background:var(--soft); color:#33484d; }
 ul,ol { padding-left:28px; }
 li { margin:4px 0; }
