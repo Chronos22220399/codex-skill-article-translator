@@ -141,6 +141,7 @@ The concrete DOM id/class conventions and the jump/highlight JavaScript are docu
 │   └── pipeline.md
 └── scripts/
     ├── make_inventory.py
+    ├── make_alignment_skeleton.py
     ├── build_reader.py
     ├── verify_translation_project.py
     └── test_verify_translation_project.py
@@ -151,6 +152,7 @@ The concrete DOM id/class conventions and the jump/highlight JavaScript are docu
 - `references/reader-contract.md` documents the interactive reader DOM/class/JS conventions.
 - `references/pipeline.md` documents the deterministic data schemas and the end-to-end build.
 - `scripts/make_inventory.py` turns translated Markdown into stable block ids.
+- `scripts/make_alignment_skeleton.py` emits a fixed-shape `alignment.json` skeleton.
 - `scripts/build_reader.py` deterministically renders the interactive reader from `alignment.json`.
 - `scripts/verify_translation_project.py` checks generated translation projects.
 - `scripts/test_verify_translation_project.py` contains regression tests for the verifier.

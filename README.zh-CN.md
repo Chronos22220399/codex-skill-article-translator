@@ -149,6 +149,7 @@ python scripts\verify_translation_project.py path\to\translation-project
 │   └── pipeline.md
 └── scripts/
     ├── make_inventory.py
+    ├── make_alignment_skeleton.py
     ├── build_reader.py
     ├── verify_translation_project.py
     └── test_verify_translation_project.py
@@ -159,6 +160,7 @@ python scripts\verify_translation_project.py path\to\translation-project
 - `references/reader-contract.md` 是交互式阅读稿的 DOM/class/JS 实现约定。
 - `references/pipeline.md` 是确定性数据 schema 与端到端构建流程。
 - `scripts/make_inventory.py` 把译文 Markdown 解析为稳定 block id。
+- `scripts/make_alignment_skeleton.py` 生成固定结构的 `alignment.json` 骨架。
 - `scripts/build_reader.py` 从 `alignment.json` 确定性生成交互式阅读稿。
 - `scripts/verify_translation_project.py` 用于检查生成后的翻译项目。
 - `scripts/test_verify_translation_project.py` 是验证脚本的回归测试。

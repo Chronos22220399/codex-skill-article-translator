@@ -98,9 +98,15 @@ render it with the bundled scripts. The full data contract is in
        --output translation-blocks.json
    ```
 
-2. Author `alignment.json` from that inventory: one record per block, `id` taken from
-   the inventory, `source` filled with the real source text (canonical LaTeX for
-   equations). Do not use prose placeholders.
+2. Create the `alignment.json` skeleton, then fill the sources:
+
+   ```bash
+   python scripts/make_alignment_skeleton.py --blocks translation-blocks.json \
+       --output alignment.json
+   ```
+
+   One record per block, `id` taken from the inventory. Fill `source` with the real
+   source text (canonical LaTeX for equations). Do not use prose placeholders.
 
 3. Render the interactive reader with the bundled builder:
 
@@ -364,11 +370,13 @@ When the user wants HTML:
 The skill ships the renderer, the inventory parser, and the checker. Use them instead of re-implementing the reader:
 
 - `scripts/make_inventory.py` — translated Markdown to stable block ids (see the pipeline).
+- `scripts/make_alignment_skeleton.py` — fixed-shape `alignment.json` skeleton, with `--merge` to preserve filled sources.
 - `scripts/build_reader.py PROJECT_DIR [--output NAME] [--title T] [--pdf P]` — deterministic interactive reader builder.
 - `scripts/verify_translation_project.py PROJECT_DIR [--html FILE]` — mechanical checker.
 
 ```bash
 python scripts/make_inventory.py --translation translation/article-zh.md --output translation-blocks.json
+python scripts/make_alignment_skeleton.py --blocks translation-blocks.json --output alignment.json
 python scripts/build_reader.py PROJECT_DIR --title "..." --pdf ../original.pdf
 python scripts/verify_translation_project.py PROJECT_DIR
 ```

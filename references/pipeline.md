@@ -18,10 +18,16 @@ Do not hand-write the reader HTML, and do not invent new DOM ids or classes.
    ```
    This assigns stable ids (`h-001`, `p-042`, `eq-003`, `fig-001`, `table-002`, ...)
    and records figure/table numbers.
-4. **Author `alignment.json`.** Create one record per inventory block. The `id` MUST
-   come from `translation-blocks.json`. Fill `source` with the real source text
-   (reconstructed from the extraction, not a summary label); for equations put the
-   canonical LaTeX in `source`; set `table`/`figure` numbers where applicable.
+4. **Create the `alignment.json` skeleton, then fill the sources.**
+   ```bash
+   python scripts/make_alignment_skeleton.py --blocks translation-blocks.json \
+       --output alignment.json
+   ```
+   This writes one record per block with a fixed shape. Then fill each `source` with
+   the real source text (reconstructed from the extraction, not a summary label); for
+   equations put the canonical LaTeX in `source`; set `table`/`figure` numbers where
+   they are missing. Re-run with `--merge` after editing the translation to preserve
+   already-filled sources.
 5. **Create the supporting data:** `references.json`, `figure-map.json`,
    `glossary.md`, and (when a summary is wanted) `summary.md`.
 6. **Build the reader.**
