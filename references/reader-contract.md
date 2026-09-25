@@ -143,3 +143,15 @@ window.MathJax = {
 - Emit equations as `.pair.pair-eq` with a `.source-left` containing the LaTeX so
   `scripts/verify_translation_project.py` can find and validate them.
 - Rebuild the reader after any translation, figure-map, formula, or summary change.
+
+## Use the bundled builder
+
+Do not hand-code this contract. Run:
+
+```bash
+python scripts/build_reader.py PROJECT_DIR --title "..." --pdf ../original.pdf
+```
+
+`scripts/build_reader.py` implements every id, class, and behavior above, so the
+result is identical no matter which model fills the data. The data schemas are in
+`references/pipeline.md`; validation is in `scripts/verify_translation_project.py`.

@@ -22,6 +22,7 @@ This repository contains the skill instructions. It is not a standalone translat
 - Rebuilds source tables as real HTML tables and crops figures at source resolution, placing each at its first mention.
 - Builds a `summary.md`-driven summary panel behind a top-toolbar `总结` button.
 - Requires an independent review agent pass before completion.
+- Ships a deterministic pipeline (`make_inventory.py` + `build_reader.py` + `verify_translation_project.py`) so different models produce the same reader from structured data.
 - Ships a mechanical verification script for equation sources, parallel equation blocks, image references, term links, and MathJax configuration.
 - Requires a final `verification-report.md` so each translation unit is auditable.
 
@@ -136,8 +137,11 @@ The concrete DOM id/class conventions and the jump/highlight JavaScript are docu
 ├── agents/
 │   └── openai.yaml
 ├── references/
-│   └── reader-contract.md
+│   ├── reader-contract.md
+│   └── pipeline.md
 └── scripts/
+    ├── make_inventory.py
+    ├── build_reader.py
     ├── verify_translation_project.py
     └── test_verify_translation_project.py
 ```
@@ -145,6 +149,9 @@ The concrete DOM id/class conventions and the jump/highlight JavaScript are docu
 - `SKILL.md` contains the main skill instructions.
 - `agents/openai.yaml` contains OpenAI-facing display metadata and the default prompt.
 - `references/reader-contract.md` documents the interactive reader DOM/class/JS conventions.
+- `references/pipeline.md` documents the deterministic data schemas and the end-to-end build.
+- `scripts/make_inventory.py` turns translated Markdown into stable block ids.
+- `scripts/build_reader.py` deterministically renders the interactive reader from `alignment.json`.
 - `scripts/verify_translation_project.py` checks generated translation projects.
 - `scripts/test_verify_translation_project.py` contains regression tests for the verifier.
 

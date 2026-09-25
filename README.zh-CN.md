@@ -20,6 +20,7 @@
 - 生成 reader-style HTML，支持目录、术语解释、MathJax、左右对照和打印样式。
 - 交互式阅读：图/表/文献引用可点击跳转，悬停/聚焦显示标题提示，跳转目标高亮，点击空白处取消。
 - 表格读取后重建为真正的 HTML 表格；图片按原文清晰度裁切并放在首次提及处。
+- 附带确定性流水线（`make_inventory.py` + `build_reader.py` + `verify_translation_project.py`）：模型只产出结构化数据，HTML 由脚本稳定生成，换模型也能得到同样效果。
 - 附带机械验证脚本，检查公式 source、并排公式块、图片引用、术语链接和 MathJax 配置。
 - 输出 `verification-report.md`，记录检查结果、独立审查发现和未解决问题。
 
@@ -144,8 +145,11 @@ python scripts\verify_translation_project.py path\to\translation-project
 ├── agents/
 │   └── openai.yaml
 ├── references/
-│   └── reader-contract.md
+│   ├── reader-contract.md
+│   └── pipeline.md
 └── scripts/
+    ├── make_inventory.py
+    ├── build_reader.py
     ├── verify_translation_project.py
     └── test_verify_translation_project.py
 ```
@@ -153,6 +157,9 @@ python scripts\verify_translation_project.py path\to\translation-project
 - `SKILL.md` 是主 skill 指令。
 - `agents/openai.yaml` 是 OpenAI/Codex 使用的展示信息和默认提示。
 - `references/reader-contract.md` 是交互式阅读稿的 DOM/class/JS 实现约定。
+- `references/pipeline.md` 是确定性数据 schema 与端到端构建流程。
+- `scripts/make_inventory.py` 把译文 Markdown 解析为稳定 block id。
+- `scripts/build_reader.py` 从 `alignment.json` 确定性生成交互式阅读稿。
 - `scripts/verify_translation_project.py` 用于检查生成后的翻译项目。
 - `scripts/test_verify_translation_project.py` 是验证脚本的回归测试。
 

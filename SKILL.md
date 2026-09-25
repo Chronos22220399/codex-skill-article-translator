@@ -27,6 +27,7 @@ For a PDF or long source document, create a project folder beside the source unl
 ```text
 translation-project/
   source.md
+  translation-blocks.json
   chapter-index.md
   glossary.md
   style-guide.md
@@ -82,6 +83,40 @@ Use `text-only` mode only when the user explicitly asks for plain translation wi
 9. After each unit, generate or update the readable HTML file unless the user explicitly requested `text-only`. Apply the Interactive Reader Contract and, when the user wants one, build the Summary Panel.
 10. Verify formulas, figures, captions, links, alignment, required deliverables, and missing text before reporting completion.
 11. Run an independent review agent over the finished unit (see Independent Review) and record its findings and your fixes in `verification-report.md`.
+
+## Deterministic Reader Pipeline (Required)
+
+The reader must be reproducible across models and sessions. Do **not** hand-write the
+reader HTML, and do not invent new DOM ids or classes. Produce structured data, then
+render it with the bundled scripts. The full data contract is in
+`references/pipeline.md`.
+
+1. Parse the translated Markdown into a stable block inventory:
+
+   ```bash
+   python scripts/make_inventory.py --translation translation/article-zh.md \
+       --output translation-blocks.json
+   ```
+
+2. Author `alignment.json` from that inventory: one record per block, `id` taken from
+   the inventory, `source` filled with the real source text (canonical LaTeX for
+   equations). Do not use prose placeholders.
+
+3. Render the interactive reader with the bundled builder:
+
+   ```bash
+   python scripts/build_reader.py PROJECT_DIR --title "..." --pdf ../original.pdf
+   ```
+
+   The builder emits `translation-reading.html` with the fixed toolbar, jump links,
+   tooltips, highlight-on-jump, real HTML tables, the reference list, the term panel,
+   and the summary panel. Styling and behavior are fixed by the builder so every model
+   gets the same result.
+
+4. Validate with the bundled verifier (below) before reporting completion.
+
+If a project deviates from the schema, fix the data, not the renderer. If the reader
+looks wrong, regenerate it from `alignment.json`; do not patch the HTML by hand.
 
 ## Translation Rules
 
@@ -324,15 +359,21 @@ When the user wants HTML:
 - Apply the Readable Layout Profile; do not ship a plain unstyled Markdown-to-HTML dump as the main reading output.
 - Rebuild HTML after any figure-map, translation, or formula-rendering change.
 
-## Bundled Verification Script
+## Bundled Scripts
 
-This skill includes a mechanical project checker:
+The skill ships the renderer, the inventory parser, and the checker. Use them instead of re-implementing the reader:
+
+- `scripts/make_inventory.py` — translated Markdown to stable block ids (see the pipeline).
+- `scripts/build_reader.py PROJECT_DIR [--output NAME] [--title T] [--pdf P]` — deterministic interactive reader builder.
+- `scripts/verify_translation_project.py PROJECT_DIR [--html FILE]` — mechanical checker.
 
 ```bash
-python path/to/paper_reader/scripts/verify_translation_project.py path/to/translation-project
+python scripts/make_inventory.py --translation translation/article-zh.md --output translation-blocks.json
+python scripts/build_reader.py PROJECT_DIR --title "..." --pdf ../original.pdf
+python scripts/verify_translation_project.py PROJECT_DIR
 ```
 
-Use it before final reporting when `full-reading-output` includes `alignment.json` and HTML. The script checks equation sources, `pair-eq-*` source-left formula rendering, image references, `term-*` links, and MathJax configuration. Add its result to `verification-report.md` when practical.
+The verifier checks equation sources, `pair-eq-*` source-left formula rendering, image references, `term-*` links, and MathJax configuration. Record its output in `verification-report.md`.
 
 ## Verification Checklist
 
@@ -347,6 +388,8 @@ Before saying a chapter or output is complete, verify:
 - Every figure is placed at its first mention, with the translated caption as text outside the image.
 - When a summary was requested, `summary.md` exists and the reader exposes a working summary toggle button.
 - An independent review agent was run over the finished unit, and its findings plus the fixes are recorded in `verification-report.md`.
+- The reader was generated with `scripts/build_reader.py` from `alignment.json`, not hand-written, and `scripts/make_inventory.py` produced the block ids used by the alignment.
+- `scripts/verify_translation_project.py` was run on the project and its result is recorded in `verification-report.md`.
 - The translated section exists and follows the source section boundaries.
 - For cross-session continuation, existing `glossary.md`, `style-guide.md`, `chapter-index.md`, completed translation files, current reader HTML, and `figure-map.json` if present were read before translating.
 - If parallel comparison is enabled, `alignment.json` exists and includes records for all translated source blocks in the completed section.
