@@ -1,10 +1,10 @@
-# Article Translator 中文说明
+# Paper Reader 中文说明
 
-`article_translator` 是一个用于 Codex 的学术文献翻译 skill。它的目标不是把论文临时翻成一段中文，而是把长篇学术文献翻译做成一个可复现、可继续、可审阅、可验证的翻译项目。
+`paper_reader` 是一个用于学术文献翻译与阅读的 skill（fork 自 [waiwaifeng/codex-skill-article-translator](https://github.com/waiwaifeng/codex-skill-article-translator)，在其基础上增加了交互式阅读和总结面板）。它的目标不是把论文临时翻成一段中文，而是把长篇学术文献翻译做成一个可复现、可继续、可审阅、可验证的翻译项目，并生成方便跳转的交互式阅读稿。
 
 它适合处理 PDF、期刊论文、综述、学位论文、arXiv 论文、技术报告等长文档，尤其适合包含公式、图、图注、表格、引用、章节编号和大量专业术语的文献。
 
-这个仓库保存的是 Codex skill 指令，不是独立运行的翻译软件。
+这个仓库保存的是 skill 指令，不是独立运行的翻译软件。
 
 ## 主要功能
 
@@ -15,10 +15,13 @@
 - 维护 `style-guide.md`，统一学术中文风格和翻译约定。
 - 维护 `alignment.json`，支持段落级中英文左右对照。
 - 维护 `figure-map.json`，记录图编号、图片路径、图注和裁剪状态。
+- 维护 `summary.md`，生成顶部“总结”面板，长论文快速通读。
 - 保留公式、变量、希腊字母、上下标、图号、表号、引用编号和章节结构。
 - 生成 reader-style HTML，支持目录、术语解释、MathJax、左右对照和打印样式。
+- 交互式阅读：图/表/文献引用可点击跳转，悬停/聚焦显示标题提示，跳转目标高亮，点击空白处取消。
+- 表格读取后重建为真正的 HTML 表格；图片按原文清晰度裁切并放在首次提及处。
 - 附带机械验证脚本，检查公式 source、并排公式块、图片引用、术语链接和 MathJax 配置。
-- 输出 `verification-report.md`，记录检查结果和未解决问题。
+- 输出 `verification-report.md`，记录检查结果、独立审查发现和未解决问题。
 
 ## 核心优势
 
@@ -32,6 +35,7 @@ translation-project/
   chapter-index.md
   glossary.md
   style-guide.md
+  summary.md
   alignment.json
   figure-map.json
   verification-report.md
@@ -113,24 +117,34 @@ python scripts\verify_translation_project.py path\to\translation-project
 
 它应支持：
 
+- 顶部工具栏：总结、中文阅读、左右对照、术语说明、回到顶部、打开原 PDF；
 - 中文阅读模式；
 - 中英文左右对照模式；
-- 可点击术语解释；
+- 可点击术语解释，格式为 `English term（中文译文）：中文解释`；
 - 目录和章节导航；
 - MathJax 公式渲染；
+- 图/表/文献引用点击跳转，悬停或键盘聚焦显示标题提示，跳转目标高亮，点击空白处取消高亮；
+- 表格重建为 HTML 表格，图片按原文清晰度裁切；
+- `summary.md` 生成的“总结”面板，覆盖问题、方法、训练/方案变体、关键结果和局限；
 - 相对图片路径；
 - 响应式布局；
 - 打印/PDF 样式；
 - 长公式横向滚动；
 - 图片、图注、公式和术语说明不重叠。
 
+具体 DOM id、class 和跳转/高亮 JavaScript 约定见 `references/reader-contract.md`。
+
 ## 仓库内容
 
 ```text
 .
 ├── SKILL.md
+├── README.md
+├── README.zh-CN.md
 ├── agents/
 │   └── openai.yaml
+├── references/
+│   └── reader-contract.md
 └── scripts/
     ├── verify_translation_project.py
     └── test_verify_translation_project.py
@@ -138,31 +152,33 @@ python scripts\verify_translation_project.py path\to\translation-project
 
 - `SKILL.md` 是主 skill 指令。
 - `agents/openai.yaml` 是 OpenAI/Codex 使用的展示信息和默认提示。
+- `references/reader-contract.md` 是交互式阅读稿的 DOM/class/JS 实现约定。
 - `scripts/verify_translation_project.py` 用于检查生成后的翻译项目。
 - `scripts/test_verify_translation_project.py` 是验证脚本的回归测试。
 
 ## 安装方式
 
-把这个仓库 clone 或复制到本地 Codex skills 目录，并命名为 `article_translator`：
+把这个仓库 clone 或复制到本地 skills 目录，并命名为 `paper_reader`。例如作为 opencode 全局 skill：
 
-```powershell
-git clone https://github.com/waiwaifeng/codex-skill-article-translator.git C:\Users\歪歪风\.codex\skills\article_translator
+```bash
+git clone https://github.com/Chronos22220399/codex-skill-article-translator.git ~/code/skill/paper_reader
+ln -s ~/code/skill/paper_reader ~/.config/opencode/skills/paper_reader
 ```
 
-如果你本地已经有 `article_translator`，替换前先备份。
+如果你本地已经有同名 skill，替换前先备份。
 
 ## 使用方式
 
-在 Codex 中处理学术文献翻译时，可以这样调用：
+处理学术文献翻译时，可以这样调用：
 
 ```text
-Use $article_translator in full-reading-output mode to translate this academic article.
+Use $paper_reader in full-reading-output mode to translate this academic article, with interactive jump links, tooltips, highlight-on-jump, English/Chinese parallel mode, and a 总结 summary panel.
 ```
 
 如果是跨会话继续旧项目，建议明确要求先读取旧上下文：
 
 ```text
-Use $article_translator and first read glossary.md, style-guide.md, chapter-index.md, translation/, current reader HTML, alignment.json, and figure-map.json before continuing.
+Use $paper_reader and first read glossary.md, style-guide.md, chapter-index.md, summary.md, translation/, current reader HTML, alignment.json, and figure-map.json before continuing.
 ```
 
 ## 维护建议

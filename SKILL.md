@@ -1,9 +1,9 @@
 ---
-name: article_translator
-description: Use when translating academic articles, long research papers, reviews, theses, PDFs, or literature with equations, figures, captions, section structure, terminology consistency, or HTML/PDF/DOCX reading output.
+name: paper_reader
+description: Use when translating academic articles, long research papers, reviews, theses, PDFs, or literature with equations, figures, captions, section structure, terminology consistency, or HTML/PDF/DOCX reading output. Produces an interactive reader with figure/table/citation jump links, hover tooltips, highlight-on-jump, a summary panel, and parallel source/translation mode.
 ---
 
-# Article Translator
+# Paper Reader
 
 ## Overview
 
@@ -30,6 +30,7 @@ translation-project/
   chapter-index.md
   glossary.md
   style-guide.md
+  summary.md
   alignment.json
   figure-map.json
   verification-report.md
@@ -60,7 +61,9 @@ Required deliverables for `full-reading-output`:
 - Updated reader-style HTML, normally `translation-reading.html`.
 - Updated `figure-map.json` plus valid figure references and image assets for figures covered by the translated unit.
 - MathJax or equivalent math rendering for inline and display formulas.
+- Updated `summary.md` when the user asks for a summary or a summary button (see Summary Panel).
 - A final verification report, normally `verification-report.md`, listing files changed, checks run, and any unresolved gaps.
+- An independent review pass by a separate agent before declaring completion (see Independent Review).
 
 If any required deliverable cannot be produced, do not silently downgrade to text-only. State the blocker, what remains incomplete, and what input or permission is needed.
 
@@ -73,11 +76,12 @@ Use `text-only` mode only when the user explicitly asks for plain translation wi
 3. Create or update `glossary.md` with key terms, translation policy, and short explanations for high-value specialist terms. Use consistent translations for recurring concepts and note uncertain terms.
 4. Create or update `style-guide.md`: academic Chinese, faithful to original logic, no unexplained simplification, preserve symbols and equation labels.
 5. Translate in manageable units, usually title/abstract first and then one chapter or section at a time.
-6. When continuing a translation across Codex sessions, first read the existing project context: `glossary.md`, `style-guide.md`, `chapter-index.md`, completed files in `translation/`, the current reader HTML, and `figure-map.json` if present. Do not continue from memory alone.
+6. When continuing a translation across sessions, first read the existing project context: `glossary.md`, `style-guide.md`, `chapter-index.md`, `summary.md` if present, completed files in `translation/`, the current reader HTML, `alignment.json`, and `figure-map.json` if present. Do not continue from memory alone.
 7. Maintain `alignment.json` for paragraph-level source/translation pairing whenever original-vs-translation comparison is requested or useful for future review.
 8. Maintain `figure-map.json` for each covered figure, including the figure number, source page or extraction source, final relative image path, caption block id, crop status, and unresolved issues.
-9. After each unit, generate or update the readable HTML file unless the user explicitly requested `text-only`.
+9. After each unit, generate or update the readable HTML file unless the user explicitly requested `text-only`. Apply the Interactive Reader Contract and, when the user wants one, build the Summary Panel.
 10. Verify formulas, figures, captions, links, alignment, required deliverables, and missing text before reporting completion.
+11. Run an independent review agent over the finished unit (see Independent Review) and record its findings and your fixes in `verification-report.md`.
 
 ## Translation Rules
 
@@ -219,7 +223,7 @@ The HTML output should be a paper reader, not a raw Markdown dump.
 
 Default layout requirements:
 
-- A top toolbar with mode controls such as Chinese reading, parallel source/translation, terminology notes, table of contents, and optional PDF export.
+- A top toolbar with mode controls such as Summary (总结), Chinese reading, parallel source/translation, terminology notes, back to top, and open original PDF.
 - A constrained main reading column for Chinese mode, usually `760-860px` wide on desktop.
 - Chinese body text around `17-18px` with `1.75-1.9` line height.
 - Clear vertical spacing around headings, paragraphs, equations, figures, captions, and tables.
@@ -237,10 +241,67 @@ Visual rules:
 - In parallel mode, use two balanced columns: source on the left, translation on the right. Keep term notes as hover/focus notes, overlays, or collapsible panels instead of adding a fixed third column.
 - Provide a quick way to switch between reading mode and parallel mode without regenerating the file when practical.
 
+## Interactive Reader Contract
+
+The HTML reader is the primary reading surface. Unless the user explicitly asks for something simpler, it must behave as an interactive paper reader, not a static Markdown dump. This contract is required for `full-reading-output`.
+
+### Figures
+
+- Crop each figure from the source into its own image and place the figure block at the point where the text first mentions it (`图 N` / `Figure N`).
+- Keep the cropped image as close to the source resolution as possible; never downscale below the source, and never substitute a whole-page render for a figure.
+- Keep the translated caption as text below the image. The image itself must not contain body text or the `Fig. ...` caption.
+
+### Asset references (figures and tables)
+
+- Every inline mention of `图 N` / `Figure N` and `表 N` / `Table N` becomes a link whose target is the figure or table block, e.g. `href="#fig-N"` or `href="#table-N"`.
+- The target block has a stable id (`fig-N`, `table-N`).
+- Hovering or keyboard-focusing the reference shows a short tooltip with the figure/table title (caption).
+- Clicking the reference jumps/scrolls to the target and briefly highlights it.
+- Read tables from the source and rebuild them as real HTML tables. Do not ship a table as an image.
+
+### Citation markers
+
+- Every inline citation marker `[N]` becomes a link to the matching entry in the reference list at the end of the document, e.g. `href="#ref-N"`.
+- Each reference entry has a stable id (`ref-N`).
+- Hovering or focusing the marker shows a tooltip with the bibliographic title.
+- Clicking jumps to the entry and highlights it.
+
+### Highlight behavior
+
+- The jump target receives a visible highlight (for example a background tint plus outline) and the highlight is temporary (auto-clears after a few seconds).
+- A global click handler clears highlights when the user clicks outside a link, its target, or a highlighted block. Clicking ordinary surrounding text clears the highlight.
+- Highlights must be keyboard reachable: reference and term links are focusable, and `:focus-visible` shows the same tooltip as `:hover`.
+
+### Accessibility and layout
+
+- All interactive links are real `<a>` elements with `href="#..."` targets, focusable and keyboard-operable.
+- Tooltips must not overlap formulas, figures, captions, or term notes, and must not be the only way to access the information.
+- Use relative asset paths so the reader works inside the project folder.
+- Rebuild the reader after any figure-map, translation, formula, or summary change.
+
+### Summary Panel
+
+When the source is long, or the user asks for a summary / "总结" button:
+
+- Maintain `summary.md` at the project root as the editable summary source. Keep it consistent with the translation: same terminology, same citation numbers, same formulas and symbols.
+- Render a toolbar button labelled `总结` that toggles a summary panel near the top of the reader. Default it to collapsed unless the user asks for it open.
+- The panel covers, at minimum: the problem being solved; the method and its main components; the approach/training variants; the key quantitative results; and the conclusion with limitations.
+- The summary may link citations and use MathJax, but it must not duplicate or replace the full translation.
+- Record the summary deliverable in `verification-report.md`.
+
+### Independent Review
+
+- After a unit is translated and the reader is rebuilt, run a separate review agent (typically a subagent) that reads the extracted English source and the Chinese translation, then reports missing, duplicated, mistranslated, or malformed content plus terminology-policy violations.
+- Fix what the review finds, then record the review outcome and fixes in `verification-report.md`.
+- Do not claim completion based only on self-review.
+
+A concrete implementation of this contract, including id/class conventions and the highlight/tooltip JavaScript, is in `references/reader-contract.md`.
+
 ## HTML Reading Output
 
 When the user wants HTML:
 
+- Apply the Interactive Reader Contract above: jump links, hover/focus tooltips, highlight-on-jump with click-elsewhere clearing, real HTML tables, a reference list at the end, and the Summary Panel when requested.
 - Build a single readable HTML file from translated Markdown sections.
 - Support a Chinese reading mode and a paragraph-level parallel mode when `alignment.json` exists.
 - In parallel mode, render source text on the left and Chinese translation on the right, paired by `alignment.json` records.
@@ -268,7 +329,7 @@ When the user wants HTML:
 This skill includes a mechanical project checker:
 
 ```bash
-python path/to/article_translator/scripts/verify_translation_project.py path/to/translation-project
+python path/to/paper_reader/scripts/verify_translation_project.py path/to/translation-project
 ```
 
 Use it before final reporting when `full-reading-output` includes `alignment.json` and HTML. The script checks equation sources, `pair-eq-*` source-left formula rendering, image references, `term-*` links, and MathJax configuration. Add its result to `verification-report.md` when practical.
@@ -281,6 +342,11 @@ Before saying a chapter or output is complete, verify:
 - In `full-reading-output`, the result is not only Chinese translation text plus `glossary.md`.
 - Updated deliverables exist as applicable: `translation/*.md`, `glossary.md`, `style-guide.md`, `alignment.json`, `figure-map.json`, reader-style HTML, figure assets, and `verification-report.md`.
 - HTML applies the Readable Layout Profile: top toolbar, readable text width, table of contents/navigation, terminology notes behavior, responsive layout, and print/PDF CSS.
+- HTML follows the Interactive Reader Contract: figure/table/citation mentions are links to stable `fig-*`, `table-*`, and `ref-*` targets; targets highlight on jump and clear when the user clicks elsewhere; hover/focus shows the caption or bibliographic title as a tooltip.
+- Tables are rendered as real HTML tables, not images, and tables are placed near their reference.
+- Every figure is placed at its first mention, with the translated caption as text outside the image.
+- When a summary was requested, `summary.md` exists and the reader exposes a working summary toggle button.
+- An independent review agent was run over the finished unit, and its findings plus the fixes are recorded in `verification-report.md`.
 - The translated section exists and follows the source section boundaries.
 - For cross-session continuation, existing `glossary.md`, `style-guide.md`, `chapter-index.md`, completed translation files, current reader HTML, and `figure-map.json` if present were read before translating.
 - If parallel comparison is enabled, `alignment.json` exists and includes records for all translated source blocks in the completed section.

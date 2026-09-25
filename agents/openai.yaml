@@ -1,7 +1,7 @@
 interface:
-  display_name: "Article Translator"
-  short_description: "Translate academic papers with formulas, figures, terminology notes, parallel text, and readable outputs."
-  default_prompt: "Use $article_translator in full-reading-output mode to translate this academic article with preserved equations, figures, captions, complete English specialist terms, clickable Chinese term explanations formatted as English（Chinese）：explanation, terminology policy, translation-led and anchor-based paragraph-level alignment.json, no raw PDF block-order alignment, verify source-left parallel equation rendering, reject prose placeholder equation sources, check all pair-eq-* blocks after generation, figure-map.json, source-left/translation-right reader-style HTML mode, readable layout profile, and verification-report.md."
+  display_name: "Paper Reader"
+  short_description: "Translate academic papers into an interactive reader with jump links, tooltips, highlight-on-jump, a summary panel, terminology notes, and parallel text."
+  default_prompt: "Use $paper_reader in full-reading-output mode to translate this academic article with preserved equations, figures, captions, complete English specialist terms, clickable Chinese term explanations formatted as English（Chinese）：explanation, terminology policy, translation-led and anchor-based paragraph-level alignment.json, no raw PDF block-order alignment, verify source-left parallel equation rendering, reject prose placeholder equation sources, check all pair-eq-* blocks after generation, figure-map.json, source-left/translation-right reader-style HTML mode with a Summary (总结) toolbar button driven by summary.md, clickable figure/table/citation mentions that jump, tooltip on hover/focus, highlight the target and clear on click elsewhere, tables rebuilt as HTML, readable layout profile, an independent review agent pass, and verification-report.md."
 
 policy:
   allow_implicit_invocation: true
