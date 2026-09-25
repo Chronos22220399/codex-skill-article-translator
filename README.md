@@ -159,12 +159,19 @@ The concrete DOM id/class conventions and the jump/highlight JavaScript are docu
 
 ## Installation
 
-Clone or copy this repository into your local skills directory as `paper_reader`, for example as a global opencode skill:
+Clone this repository into a working directory as `paper_reader`, then link it into whichever agent you use. The folder name must be `paper_reader` and `SKILL.md` must keep `name: paper_reader`.
 
 ```bash
 git clone https://github.com/Chronos22220399/codex-skill-article-translator.git ~/code/skill/paper_reader
+
+# opencode (global skills)
 ln -s ~/code/skill/paper_reader ~/.config/opencode/skills/paper_reader
+
+# Codex
+ln -s ~/code/skill/paper_reader ~/.codex/skills/paper_reader
 ```
+
+Restart the agent after adding the skill so it is picked up. If symlinks are not followed on your setup, clone or copy the repository directly into the skills directory instead.
 
 If you already have a skill with the same name, back it up before replacing it.
 

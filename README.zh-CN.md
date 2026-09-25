@@ -167,12 +167,19 @@ python scripts\verify_translation_project.py path\to\translation-project
 
 ## 安装方式
 
-把这个仓库 clone 或复制到本地 skills 目录，并命名为 `paper_reader`。例如作为 opencode 全局 skill：
+把仓库 clone 到一个工作目录并命名为 `paper_reader`，再软链到你使用的 agent。目录名必须是 `paper_reader`，且 `SKILL.md` 的 `name: paper_reader` 保持不变。
 
 ```bash
 git clone https://github.com/Chronos22220399/codex-skill-article-translator.git ~/code/skill/paper_reader
+
+# opencode（全局 skill）
 ln -s ~/code/skill/paper_reader ~/.config/opencode/skills/paper_reader
+
+# Codex
+ln -s ~/code/skill/paper_reader ~/.codex/skills/paper_reader
 ```
+
+添加后需要重启对应 agent 才会加载。如果你的环境不跟随软链，可改为直接 clone 或复制到 skills 目录。
 
 如果你本地已经有同名 skill，替换前先备份。
 
