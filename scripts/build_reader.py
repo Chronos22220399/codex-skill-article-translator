@@ -145,6 +145,9 @@ def build_tooltip_maps(records: list[dict]) -> tuple[dict[int, str], dict[int, s
 
 
 def mark_terms(text: str, terms: list[dict], used: set[str]) -> str:
+    """Mark the first occurrence of each term, never nesting inside another mark."""
+    taken: list[tuple[int, int]] = []
+    matches: list[tuple[int, int, str, str]] = []
     for term in terms:
         if term["id"] in used:
             continue
@@ -157,8 +160,14 @@ def mark_terms(text: str, terms: list[dict], used: set[str]) -> str:
                 index = text.find(key)
         if index < 0:
             continue
-        text = f"{text[:index]}\x01TERM:{term['id']}\x02{key}\x03/TERM\x04{text[index + len(key):]}"
+        end = index + len(key)
+        if any(not (end <= start or index >= stop) for start, stop in taken):
+            continue
+        taken.append((index, end))
+        matches.append((index, end, term["id"], key))
         used.add(term["id"])
+    for index, end, term_id, key in sorted(matches, reverse=True):
+        text = f"{text[:index]}\x01TERM:{term_id}\x02{key}\x03/TERM\x04{text[end:]}"
     return text
 
 
@@ -390,8 +399,8 @@ TEMPLATE = r'''<!doctype html>
 <style>
 :root { --ink:#1b2428; --muted:#607078; --line:#d8e0e2; --paper:#fff; --bg:#eef2f0; --accent:#0b6e59; --link:#075f87; --mark:#fff0ac; --soft:#f3f7f5; --src:#5b6b70; }
 * { box-sizing:border-box; }
-html { scroll-behavior:smooth; }
-body { margin:0; color:var(--ink); background:var(--bg); font:16px/1.78 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+body { margin:0; color:var(--ink); background:var(--bg); font:16px/1.78 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; overflow-wrap:break-word; -webkit-tap-highlight-color:transparent; }
 .shell { max-width:1840px; margin:auto; display:grid; grid-template-columns:245px minmax(0,860px); gap:28px; align-items:start; justify-content:center; }
 body.mode-parallel .shell { grid-template-columns:245px minmax(0,1280px); }
 aside { position:sticky; top:0; height:100vh; overflow:auto; padding:24px 8px 24px 20px; }
@@ -410,6 +419,10 @@ h2 { border-top:2px solid var(--ink); padding-top:14px; margin:52px 0 18px; font
 h3 { margin:34px 0 10px; font-size:1.25rem; }
 h4 { margin:25px 0 8px; font-size:1.06rem; }
 p { margin:12px 0; }
+/* Chinese body paragraphs indent two characters; source column and notes do not. */
+.translation-right p, .summary p { text-indent:2em; }
+body.mode-parallel .source-left p { text-indent:0; }
+.pair-note .translation-right blockquote p, blockquote p, figcaption p, .glossary p { text-indent:0; }
 a { color:var(--link); }
 code { padding:1px 4px; background:#eef2f3; border-radius:3px; font:0.92em ui-monospace,SFMono-Regular,Menlo,monospace; }
 pre { overflow:auto; padding:16px 18px; background:#1f2b30; color:#eef8f5; border-radius:5px; line-height:1.55; }
@@ -461,8 +474,10 @@ body.mode-parallel .pair-eq { background:#fafcfb; }
 body.mode-parallel .span { grid-column:1 / -1; }
 .source-caption.span-only { display:none; }
 body.mode-parallel .source-caption.span-only { display:block; }
-@media (max-width:1100px) { .shell, body.mode-parallel .shell { display:block; } aside { position:static; height:auto; padding:14px 20px 0; } .toc { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); } main { box-shadow:none; } body.mode-parallel .pair { grid-template-columns:1fr; } }
-@media (max-width:640px) { body { font-size:15px; } .toc { display:block; max-height:220px; overflow:auto; } h1 { font-size:2rem; } table { font-size:12px; } }
+@media (max-width:1280px) { .shell { gap:20px; } }
+@media (max-width:1100px) { .shell, body.mode-parallel .shell { display:block; } aside { position:static; height:auto; padding:14px 18px 4px; } .toc { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:2px 12px; max-height:38vh; overflow:auto; } main { box-shadow:none; padding:18px clamp(14px,3vw,28px) 60px; } body.mode-parallel .pair { grid-template-columns:1fr; } }
+@media (max-width:820px) { body { font-size:17px; } .toolbar { gap:6px; } .toolbar button, .toolbar a { padding:8px 12px; font-size:14px; } h1 { font-size:clamp(1.7rem,6vw,2.4rem); } h2 { font-size:1.4rem; } h3 { font-size:1.18rem; } .toc { grid-template-columns:1fr 1fr; } table { font-size:13px; min-width:520px; } .paper-figure img { max-height:none; } }
+@media (max-width:560px) { body { font-size:16px; } .toc { display:block; max-height:200px; } table { font-size:12px; min-width:480px; } .summary { padding:14px 16px 18px; } }
 @media print { body { background:#fff; } aside,.toolbar { display:none; } .shell { display:block; } main { padding:0; box-shadow:none; } .paper-figure,.table-wrap { break-inside:avoid; } a { color:inherit; text-decoration:none; } body.mode-zh .source-left { display:none; } }
 </style>
 <script>

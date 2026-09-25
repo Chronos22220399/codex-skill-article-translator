@@ -174,6 +174,15 @@ def verify_images(raw_html: str, project_dir: Path, html_path: Path) -> list[str
     return errors
 
 
+def verify_term_markers(raw_html: str, html_path: Path) -> list[str]:
+    errors = []
+    if "TERM:term-" in raw_html or "\x03/TERM" in raw_html:
+        errors.append(
+            f"{html_path.name}: leaked internal term markers (term marking is nested or unclosed)"
+        )
+    return errors
+
+
 def verify_term_links(raw_html: str, html_path: Path) -> list[str]:
     errors = []
     href_targets = set(re.findall(r'href=["\']#(term-[^"\']+)["\']', raw_html, flags=re.IGNORECASE))
@@ -214,6 +223,7 @@ def verify_html(project_dir: Path, html_path: Path, equation_count: int) -> list
     errors.extend(verify_pair_equations(raw_html, equation_count, html_path))
     errors.extend(verify_images(raw_html, project_dir, html_path))
     errors.extend(verify_term_links(raw_html, html_path))
+    errors.extend(verify_term_markers(raw_html, html_path))
     return errors
 
 

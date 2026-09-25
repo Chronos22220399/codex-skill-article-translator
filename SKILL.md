@@ -267,6 +267,8 @@ Default layout requirements:
 - A top toolbar with mode controls such as Summary (总结), Chinese reading, parallel source/translation, terminology notes, back to top, and open original PDF.
 - A constrained main reading column for Chinese mode, usually `760-860px` wide on desktop.
 - Chinese body text around `17-18px` with `1.75-1.9` line height.
+- Chinese body paragraphs use a two-character first-line indent (`text-indent: 2em`); the English source column and note/blockquote paragraphs stay unindented.
+- Tablet and portrait (roughly `820-1100px`): drop to a single column, turn the table of contents into a scrollable multi-column block above the article, enlarge toolbar touch targets, and let tables scroll horizontally.
 - Clear vertical spacing around headings, paragraphs, equations, figures, captions, and tables.
 - A left navigation area or collapsible table of contents for section jumps on long documents.
 - A right terminology/notes panel on wide desktop screens when not in parallel mode.
