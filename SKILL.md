@@ -375,6 +375,7 @@ The skill ships the renderer, the inventory parser, and the checker. Use them in
 - `scripts/make_alignment_skeleton.py` — fixed-shape `alignment.json` skeleton, with `--merge` to preserve filled sources.
 - `scripts/build_reader.py PROJECT_DIR [--output NAME] [--title T] [--pdf P]` — deterministic interactive reader builder.
 - `scripts/verify_translation_project.py PROJECT_DIR [--html FILE]` — mechanical checker.
+- `scripts/publish_to_site.sh PROJECT_DIR [SITE_REPO]` — copy a finished reader into the khronos-hub site, rebuild, commit, and push (see `references/merge-into-site.md`).
 
 ```bash
 python scripts/make_inventory.py --translation translation/article-zh.md --output translation-blocks.json
