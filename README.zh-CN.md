@@ -204,3 +204,38 @@ Use $paper_reader and first read glossary.md, style-guide.md, chapter-index.md, 
 - 修改行为规则时，优先更新 `SKILL.md`。
 - 如果影响新会话默认行为，同步更新 `agents/openai.yaml`。
 - 修改后运行验证脚本，并用关键词检查新增规则是否存在。
+
+## 发布到站点与多设备同步
+
+生成的 reader 只是成品；发布到站点（`khronos-hub`）后才会被收录，并自动加上登录门禁与批注/书签挂件。
+
+### 一条命令发布
+
+```bash
+~/code/skill/paper_reader/scripts/publish_to_site.sh <项目目录> ~/khronos-hub
+```
+
+脚本会：把项目拷入 `papers/<名字>-paper-reader/`（跳过 `.venv`、`source-pages/`、`page-renders/`、`.git`）；把原 PDF 拷入 `papers/`；运行 `site/build.py`；提交并推送。服务器约 10 分钟内自动上线。
+
+手动等价：把项目和 PDF 放进 `~/khronos-hub/papers/`，`cd ~/khronos-hub && python3 site/build.py`，再 `git add -A && git commit -m "papers: add xxx" && git push`。
+
+### 新设备（一次性配置）
+
+先给该设备配置 GitHub SSH 公钥，并安装 `git / python3 / rsync`：
+
+```bash
+git clone git@github.com:Chronos22220399/codex-skill-article-translator.git ~/code/skill/paper_reader
+ln -s ~/code/skill/paper_reader ~/.config/opencode/skills/paper_reader
+git clone git@github.com:Chronos22220399/khronos-hub.git ~/khronos-hub
+```
+
+### 约定
+
+- 项目目录：`papers/<名字>-paper-reader/`（目录名即模块 id）。
+- 原 PDF 放 `papers/`，reader 的「打开原 PDF」指向 `../<pdf>`。
+- 提交 `alignment.json`、`glossary.md`、`style-guide.md`、`translation/`、`references.json`、`figure-map.json`、`summary.md`，便于续译与复现。
+- 不要手改 `translation-reading.html`，用 `scripts/build_reader.py` 重新生成。
+- 每台设备把 skill 更新到同一提交：`git -C ~/code/skill/paper_reader pull`。
+
+详细说明见 `references/merge-into-site.md`。
+
