@@ -419,7 +419,8 @@ html { scroll-behavior:smooth; overflow-x:clip; -webkit-text-size-adjust:100%; t
 body { margin:0; color:var(--ink); background:var(--bg); font:16px/1.78 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; overflow-wrap:break-word; -webkit-tap-highlight-color:transparent; }
 .shell { max-width:1500px; margin:auto; display:grid; grid-template-columns:245px minmax(0,1000px); gap:28px; align-items:start; justify-content:center; }
 body.mode-parallel .shell { grid-template-columns:245px minmax(0,1280px); }
-aside { position:sticky; top:0; height:100vh; overflow:auto; padding:24px 8px 24px 20px; }
+aside { position:sticky; top:0; height:100vh; overflow:auto; padding:24px 8px 24px 20px; scrollbar-width:none; }
+aside::-webkit-scrollbar { display:none; }
 aside strong { display:block; margin-bottom:14px; font-size:14px; color:var(--accent); }
 .toc { display:flex; flex-direction:column; gap:4px; }
 .toc a { display:block; padding:4px 8px; color:var(--muted); text-decoration:none; font-size:13px; line-height:1.45; }
