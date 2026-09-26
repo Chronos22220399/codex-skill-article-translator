@@ -47,6 +47,12 @@ translation-project/
 
 Keep Markdown translation files as the editable source of truth. Generate HTML/PDF/DOCX from them for reading.
 
+When the reader is meant for the khronos-hub site, name the project folder
+`<name>-paper-reader/` (the folder name becomes the site module id) and keep the
+original PDF one level above it, so the reader's "open original PDF" link
+(`../<pdf>`) resolves. See `references/merge-into-site.md` for publishing and
+multi-device setup.
+
 ## Required Output Profile
 
 Default mode is `full-reading-output`.
