@@ -22,6 +22,7 @@ skill checklist depend on them.
 | Inline term link | class `term term-ref`, `href="#term-slug"` | `<a class="term term-ref" href="#term-css">调用点相似性</a>` |
 | Highlighted jump target | class `highlight-target` | added on click, removed on timeout/blank click |
 | Parallel pair | class `pair`, with `.source-left` and `.translation-right` |  |
+| Alignment block anchor | `data-block-id="<record id>"` on the block's first element (all block types) | `<div class="pair pair-paragraph" data-block-id="p-004">` |
 
 ## Toolbar
 

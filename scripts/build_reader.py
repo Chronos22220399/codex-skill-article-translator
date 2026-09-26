@@ -171,6 +171,22 @@ def mark_terms(text: str, terms: list[dict], used: set[str]) -> str:
     return text
 
 
+def with_block_id(block: str, rid) -> str:
+    """Attach a stable data-block-id to a block's first element.
+
+    The id comes from the alignment record so client-side annotation anchors can
+    reference a block that survives re-rendering.
+    """
+    rid = "" if rid is None else str(rid)
+    if not rid or "data-block-id=" in block:
+        return block
+    match = re.match(r"<([a-zA-Z][a-zA-Z0-9]*)\b", block)
+    if not match:
+        return block
+    attr = f' data-block-id="{html.escape(rid, quote=True)}"'
+    return block[: match.end()] + attr + block[match.end():]
+
+
 class Renderer:
     def __init__(self, refs: dict[int, str], figures: dict[int, str],
                  tables: dict[int, str], terms: list[dict], figure_paths: dict[int, str]):
@@ -544,6 +560,7 @@ def build(project: Path, output: str, title: str, pdf: str) -> Path:
     toc: list[dict] = []
     for record in records:
         block, toc_item = renderer.render(record)
+        block = with_block_id(block, record.get("id", ""))
         body.append(block)
         if toc_item:
             toc.append(toc_item)
