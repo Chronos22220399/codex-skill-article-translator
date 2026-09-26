@@ -425,6 +425,14 @@ aside strong { display:block; margin-bottom:14px; font-size:14px; color:var(--ac
 .toc a { display:block; padding:4px 8px; color:var(--muted); text-decoration:none; font-size:13px; line-height:1.45; }
 .toc a:hover,.toc a.active { color:var(--accent); background:#e1eee9; }
 .toc-3 { padding-left:20px !important; }
+.toc-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+.toc-head strong { margin-bottom:0; }
+.toc-toggle { border:1px solid var(--line); background:var(--paper); color:var(--muted); border-radius:6px; padding:2px 9px; font-size:13px; line-height:1.4; cursor:pointer; }
+.toc-toggle:hover { color:var(--accent); border-color:var(--accent); }
+.toc-fab { position:fixed; left:12px; top:72px; z-index:7; display:none; align-items:center; gap:6px; border:1px solid var(--line); background:var(--paper); color:var(--accent); border-radius:999px; padding:6px 12px; font-size:13px; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.12); }
+body.toc-hidden aside { display:none; }
+body.toc-hidden .shell, body.toc-hidden.mode-parallel .shell { grid-template-columns:minmax(0,1000px); }
+body.toc-hidden .toc-fab { display:inline-flex; }
 main { min-width:0; background:var(--paper); min-height:100vh; padding:30px clamp(20px,3vw,50px) 80px; box-shadow:0 0 0 1px rgba(0,0,0,.03); }
 .toolbar { position:sticky; top:0; z-index:6; display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 0 12px; margin-bottom:4px; background:var(--paper); border-bottom:1px solid var(--line); transition:transform .22s ease, opacity .22s ease; }
 .toolbar.toolbar-hidden { transform:translateY(-140%); opacity:0; pointer-events:none; }
@@ -502,9 +510,11 @@ body.mode-parallel .span { grid-column:1 / -1; }
 .source-caption.span-only { display:none; }
 body.mode-parallel .source-caption.span-only { display:block; }
 @media (max-width:1280px) { .shell { gap:20px; } }
-@media (max-width:1100px) { .shell, body.mode-parallel .shell { display:block; } aside { position:static; height:auto; padding:14px 18px 4px; } .toc { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:2px 12px; max-height:38vh; overflow:auto; } main { box-shadow:none; padding:18px clamp(14px,3vw,28px) 60px; } body.mode-parallel .pair { grid-template-columns:1fr; } }
-@media (max-width:820px) { body { font-size:17px; } .toolbar { gap:6px; flex-wrap:nowrap; overflow-x:auto; padding:8px 0; } .toolbar-group { flex:0 0 auto; } .toolbar-actions { flex:0 0 auto; margin-left:0; } .toolbar button, .toolbar a { padding:8px 12px; font-size:14px; } h1 { font-size:clamp(1.7rem,6vw,2.4rem); } h2 { font-size:1.4rem; } h3 { font-size:1.18rem; } .toc { grid-template-columns:1fr 1fr; } table { font-size:13px; min-width:520px; } .paper-figure img { max-height:none; } }
-@media (max-width:560px) { body { font-size:16px; } .toc { display:block; max-height:200px; } table { font-size:12px; min-width:480px; } .summary { padding:14px 16px 18px; } }
+@media (min-width:768px) and (max-width:1100px) { .shell, body.mode-parallel .shell { grid-template-columns:220px minmax(0,1fr); gap:20px; } }
+@media (max-width:1100px) { body.mode-parallel .pair { grid-template-columns:1fr; } }
+@media (max-width:767px) { .shell, body.mode-parallel .shell { display:block; } aside, .toc-toggle, .toc-fab { display:none !important; } main { box-shadow:none; padding:18px clamp(14px,3vw,28px) 60px; } }
+@media (max-width:820px) { body { font-size:17px; } .toolbar { gap:6px; flex-wrap:nowrap; overflow-x:auto; padding:8px 0; } .toolbar-group { flex:0 0 auto; } .toolbar-actions { flex:0 0 auto; margin-left:0; } .toolbar button, .toolbar a { padding:8px 12px; font-size:14px; } h1 { font-size:clamp(1.7rem,6vw,2.4rem); } h2 { font-size:1.4rem; } h3 { font-size:1.18rem; } table { font-size:13px; min-width:520px; } .paper-figure img { max-height:none; } }
+@media (max-width:560px) { body { font-size:16px; } table { font-size:12px; min-width:480px; } .summary { padding:14px 16px 18px; } }
 @media print { body { background:#fff; } aside,.toolbar { display:none; } .shell { display:block; } main { padding:0; box-shadow:none; } .paper-figure,.table-wrap { break-inside:avoid; } a { color:inherit; text-decoration:none; } body.mode-zh .source-left { display:none; } }
 </style>
 <script>
@@ -514,7 +524,7 @@ window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath:
 </head>
 <body class="mode-zh">
 <div class="shell">
-<aside><strong>__SIDEBAR_TITLE__</strong><nav class="toc" aria-label="章节目录">__TOC__</nav></aside>
+<aside><div class="toc-head"><strong>__SIDEBAR_TITLE__</strong><button id="toc-toggle" class="toc-toggle" type="button" title="收起目录">⟨</button></div><nav class="toc" aria-label="章节目录">__TOC__</nav></aside>
 <main>
 <div class="toolbar" id="toolbar">
 <div class="toolbar-group">
@@ -528,6 +538,7 @@ window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath:
 <a href="__PDF__" target="_blank">打开原 PDF</a>
 </div>
 </div>
+<button id="btn-toc" class="toc-fab" type="button" title="展开目录">☰ 目录</button>
 __SUMMARY__
 __BODY__
 __GLOSSARY__
@@ -562,6 +573,14 @@ window.addEventListener('scroll', () => {
   else if (y > khLastY + 4) khToolbar.classList.add('toolbar-hidden');
   khLastY = y;
 }, { passive: true });
+const tocToggle = document.getElementById('toc-toggle');
+const tocFab = document.getElementById('btn-toc');
+function setTocHidden(hidden) {
+  document.body.classList.toggle('toc-hidden', hidden);
+  if (tocToggle) tocToggle.textContent = hidden ? '⟩' : '⟨';
+}
+if (tocToggle) tocToggle.addEventListener('click', () => setTocHidden(true));
+if (tocFab) tocFab.addEventListener('click', () => setTocHidden(false));
 </script>
 </body>
 </html>
