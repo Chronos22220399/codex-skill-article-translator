@@ -2,17 +2,32 @@
 # Publish a paper-reader project into the khronos-hub site and push.
 #
 # Usage:
-#   publish_to_site.sh PROJECT_DIR [SITE_REPO]
+#   publish_to_site.sh [--dry-run] PROJECT_DIR [SITE_REPO]
 #
-#   PROJECT_DIR  the paper reader project (must contain translation-reading.html)
-#   SITE_REPO    path to a khronos-hub clone (default: $KHRONOS_HUB or ~/khronos-hub)
+#   --dry-run, -n  copy + build only; do NOT commit or push (for preview)
+#   PROJECT_DIR    the paper reader project (must contain translation-reading.html)
+#   SITE_REPO      path to a khronos-hub clone (default: $KHRONOS_HUB or ~/khronos-hub)
 set -euo pipefail
+
+dry_run=0
+args=()
+for arg in "$@"; do
+    case "$arg" in
+        --dry-run|-n) dry_run=1 ;;
+        -h|--help)
+            sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
+            exit 0
+            ;;
+        *) args+=("$arg") ;;
+    esac
+done
+set -- "${args[@]:-}"
 
 proj="${1:-}"
 site="${2:-${KHRONOS_HUB:-$HOME/khronos-hub}}"
 
 if [ -z "$proj" ]; then
-    echo "usage: $0 PROJECT_DIR [SITE_REPO]" >&2
+    echo "usage: $0 [--dry-run] PROJECT_DIR [SITE_REPO]" >&2
     exit 2
 fi
 proj="$(cd "$proj" && pwd)"
@@ -40,7 +55,7 @@ echo "copied project -> papers/$name"
 pdf_rel="$(python3 - "$dest/translation-reading.html" <<'PY'
 import re, sys
 html = open(sys.argv[1], encoding="utf-8").read()
-m = re.search(r'href="(\.\./[^"]+)"[^>]*>\s*打开原 PDF', html)
+m = re.search(r'href="(\.\./[^"]+\.pdf)"', html)
 print(m.group(1)[3:] if m else "")
 PY
 )"
@@ -56,6 +71,15 @@ if [ -n "$pdf_rel" ]; then
 fi
 
 ( cd "$site" && python3 site/build.py )
+
+if [ "$dry_run" = "1" ]; then
+    echo
+    echo "dry-run: copied + built, NOT committed or pushed."
+    echo "preview locally:  (cd \"$site\" && python3 -m http.server 8080 -d dist)"
+    echo "                  then open http://localhost:8080"
+    echo "when happy, run again without --dry-run to commit and push."
+    exit 0
+fi
 
 ( cd "$site"
   git add -A

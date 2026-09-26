@@ -35,6 +35,13 @@ Run the `paper_reader` skill on the PDF. It produces a project folder (see
 ~/code/skill/paper_reader/scripts/publish_to_site.sh /path/to/<name>-paper-reader ~/khronos-hub
 ```
 
+Preview without committing (copy + build only):
+
+```bash
+~/code/skill/paper_reader/scripts/publish_to_site.sh --dry-run /path/to/<name>-paper-reader ~/khronos-hub
+# then: (cd ~/khronos-hub && python3 -m http.server 8080 -d dist)
+```
+
 It will:
 1. copy the project into `papers/<name>-paper-reader/` (skipping `.venv`,
    `source-pages/`, `assets/page-renders/`, `.git`);

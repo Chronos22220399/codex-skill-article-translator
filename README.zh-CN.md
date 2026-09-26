@@ -217,6 +217,13 @@ Use $paper_reader and first read glossary.md, style-guide.md, chapter-index.md, 
 
 脚本会：把项目拷入 `papers/<名字>-paper-reader/`（跳过 `.venv`、`source-pages/`、`page-renders/`、`.git`）；把原 PDF 拷入 `papers/`；运行 `site/build.py`；提交并推送。服务器约 10 分钟内自动上线。
 
+只预览不提交（拷贝+构建，不 commit/push）：
+
+```bash
+~/code/skill/paper_reader/scripts/publish_to_site.sh --dry-run <项目目录> ~/khronos-hub
+# 然后：(cd ~/khronos-hub && python3 -m http.server 8080 -d dist)
+```
+
 手动等价：把项目和 PDF 放进 `~/khronos-hub/papers/`，`cd ~/khronos-hub && python3 site/build.py`，再 `git add -A && git commit -m "papers: add xxx" && git push`。
 
 ### 新设备（一次性配置）
