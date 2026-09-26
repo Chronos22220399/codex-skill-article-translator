@@ -415,7 +415,7 @@ TEMPLATE = r'''<!doctype html>
 <style>
 :root { --ink:#1b2428; --muted:#607078; --line:#d8e0e2; --paper:#fff; --bg:#eef2f0; --accent:#0b6e59; --link:#075f87; --mark:#fff0ac; --soft:#f3f7f5; --src:#5b6b70; }
 * { box-sizing:border-box; }
-html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+html { scroll-behavior:smooth; overflow-x:clip; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
 body { margin:0; color:var(--ink); background:var(--bg); font:16px/1.78 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; overflow-wrap:break-word; -webkit-tap-highlight-color:transparent; }
 .shell { max-width:1840px; margin:auto; display:grid; grid-template-columns:245px minmax(0,860px); gap:28px; align-items:start; justify-content:center; }
 body.mode-parallel .shell { grid-template-columns:245px minmax(0,1280px); }
