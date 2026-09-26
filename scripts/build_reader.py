@@ -438,7 +438,7 @@ main { min-width:0; background:var(--paper); min-height:100vh; padding:30px clam
 .toolbar.toolbar-hidden { transform:translateY(-140%); opacity:0; pointer-events:none; }
 .toolbar-group { display:flex; gap:2px; padding:3px; background:var(--soft); border:1px solid var(--line); border-radius:999px; }
 .toolbar-actions { display:flex; gap:8px; align-items:center; margin-left:auto; }
-.toolbar button,.toolbar a { border:1px solid var(--line); padding:6px 12px; color:var(--link); text-decoration:none; font-size:13px; background:var(--paper); border-radius:999px; cursor:pointer; white-space:nowrap; transition:background .12s, color .12s, border-color .12s; }
+.toolbar button,.toolbar a { border:1px solid var(--line); padding:6px 12px; color:var(--link); text-decoration:none; font-size:13px; line-height:1.25; background:var(--paper); border-radius:999px; cursor:pointer; white-space:nowrap; transition:background .12s, color .12s, border-color .12s; }
 .toolbar-group button { border:0; background:transparent; border-radius:999px; padding:6px 14px; color:var(--muted); }
 .toolbar-group button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
 .toolbar button:hover,.toolbar a:hover { border-color:var(--accent); color:var(--accent); }
@@ -516,7 +516,7 @@ body.mode-parallel .source-caption.span-only { display:block; }
 @media (max-width:767px) { .shell, body.mode-parallel .shell { display:block; } aside, .toc-toggle, .toc-fab { display:none !important; } main { box-shadow:none; padding:18px clamp(14px,3vw,28px) 60px; } }
 @media (max-width:820px) { body { font-size:17px; } .toolbar { gap:6px; flex-wrap:nowrap; overflow-x:auto; padding:8px 0; } .toolbar-group { flex:0 0 auto; } .toolbar-actions { flex:0 0 auto; margin-left:0; } .toolbar button, .toolbar a { padding:8px 12px; font-size:14px; } h1 { font-size:clamp(1.7rem,6vw,2.4rem); } h2 { font-size:1.4rem; } h3 { font-size:1.18rem; } table { font-size:13px; min-width:520px; } .paper-figure img { max-height:none; } }
 @media (max-width:560px) { body { font-size:16px; } table { font-size:12px; min-width:480px; } .summary { padding:14px 16px 18px; } }
-@media (max-width:640px) { .t-full { display:none; } .t-short { display:inline; } .toolbar { gap:4px; } .toolbar-group { padding:2px; gap:1px; } .toolbar button, .toolbar a { padding:6px 8px; font-size:12px; } .toolbar-group button { padding:6px 9px; } }
+@media (max-width:640px) { .t-full { display:none; } .t-short { display:inline; } .toolbar { gap:4px; } .toolbar-group { padding:2px; gap:1px; } .toolbar-actions { margin-left:auto; } .toolbar button, .toolbar a { padding:6px 9px; font-size:12px; } .toolbar-group button { padding:6px 9px; } }
 @media print { body { background:#fff; } aside,.toolbar { display:none; } .shell { display:block; } main { padding:0; box-shadow:none; } .paper-figure,.table-wrap { break-inside:avoid; } a { color:inherit; text-decoration:none; } body.mode-zh .source-left { display:none; } }
 </style>
 <script>
@@ -537,7 +537,7 @@ window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath:
 </div>
 <div class="toolbar-actions">
 <button id="btn-top" type="button"><span class="t-full">回到顶部</span><span class="t-short">顶部</span></button>
-<a href="__PDF__" target="_blank"><span class="t-full">打开原 PDF</span><span class="t-short">原PDF</span></a>
+<a href="__PDF__" target="_blank"><span class="t-full">原 PDF</span><span class="t-short">PDF</span></a>
 </div>
 </div>
 <button id="btn-toc" class="toc-fab" type="button" title="展开目录">☰ 目录</button>
