@@ -417,7 +417,7 @@ TEMPLATE = r'''<!doctype html>
 * { box-sizing:border-box; }
 html { scroll-behavior:smooth; overflow-x:clip; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
 body { margin:0; color:var(--ink); background:var(--bg); font:16px/1.78 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; overflow-wrap:break-word; -webkit-tap-highlight-color:transparent; }
-.shell { max-width:1840px; margin:auto; display:grid; grid-template-columns:245px minmax(0,860px); gap:28px; align-items:start; justify-content:center; }
+.shell { max-width:1500px; margin:auto; display:grid; grid-template-columns:245px minmax(0,1000px); gap:28px; align-items:start; justify-content:center; }
 body.mode-parallel .shell { grid-template-columns:245px minmax(0,1280px); }
 aside { position:sticky; top:0; height:100vh; overflow:auto; padding:24px 8px 24px 20px; }
 aside strong { display:block; margin-bottom:14px; font-size:14px; color:var(--accent); }
@@ -426,9 +426,15 @@ aside strong { display:block; margin-bottom:14px; font-size:14px; color:var(--ac
 .toc a:hover,.toc a.active { color:var(--accent); background:#e1eee9; }
 .toc-3 { padding-left:20px !important; }
 main { min-width:0; background:var(--paper); min-height:100vh; padding:30px clamp(20px,3vw,50px) 80px; box-shadow:0 0 0 1px rgba(0,0,0,.03); }
-.toolbar { position:sticky; top:0; z-index:5; display:flex; gap:8px; flex-wrap:wrap; padding:8px 0 14px; background:linear-gradient(var(--paper) 80%, transparent); }
-.toolbar button,.toolbar a { border:1px solid var(--line); padding:5px 10px; color:var(--link); text-decoration:none; font-size:13px; background:#fff; cursor:pointer; }
-.toolbar button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.toolbar { position:sticky; top:0; z-index:6; display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 0 12px; margin-bottom:4px; background:linear-gradient(var(--paper) 72%, transparent); transition:transform .22s ease, opacity .22s ease; }
+.toolbar.toolbar-hidden { transform:translateY(-140%); opacity:0; pointer-events:none; }
+.toolbar-group { display:flex; gap:2px; padding:3px; background:var(--soft); border:1px solid var(--line); border-radius:999px; }
+.toolbar-actions { display:flex; gap:8px; align-items:center; margin-left:auto; }
+.toolbar button,.toolbar a { border:1px solid var(--line); padding:6px 12px; color:var(--link); text-decoration:none; font-size:13px; background:var(--paper); border-radius:999px; cursor:pointer; white-space:nowrap; transition:background .12s, color .12s, border-color .12s; }
+.toolbar-group button { border:0; background:transparent; border-radius:999px; padding:6px 14px; color:var(--muted); }
+.toolbar-group button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.toolbar button:hover,.toolbar a:hover { border-color:var(--accent); color:var(--accent); }
+.toolbar-group button.active:hover { color:#fff; }
 h1,h2,h3,h4 { line-height:1.25; letter-spacing:0; scroll-margin-top:80px; }
 h1 { font-size:clamp(2rem,4vw,3.2rem); margin:28px 0 14px; max-width:820px; }
 h2 { border-top:2px solid var(--ink); padding-top:14px; margin:52px 0 18px; font-size:1.65rem; }
@@ -506,13 +512,17 @@ window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath:
 <div class="shell">
 <aside><strong>__SIDEBAR_TITLE__</strong><nav class="toc" aria-label="章节目录">__TOC__</nav></aside>
 <main>
-<div class="toolbar">
+<div class="toolbar" id="toolbar">
+<div class="toolbar-group">
 <button id="btn-summary" type="button">总结</button>
 <button id="btn-zh" class="active" type="button">中文阅读</button>
 <button id="btn-parallel" type="button">左右对照</button>
 <button id="btn-glossary" type="button">术语说明</button>
+</div>
+<div class="toolbar-actions">
 <button id="btn-top" type="button">回到顶部</button>
 <a href="__PDF__" target="_blank">打开原 PDF</a>
+</div>
 </div>
 __SUMMARY__
 __BODY__
@@ -540,6 +550,14 @@ const summary = document.getElementById('summary');
 const btnSummary = document.getElementById('btn-summary');
 if (summary) btnSummary.addEventListener('click', () => { const open = summary.classList.toggle('open'); btnSummary.classList.toggle('active', open); if (open) { summary.scrollIntoView({ behavior:'smooth', block:'start' }); if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise(); } });
 document.getElementById('btn-top').addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
+const khToolbar = document.getElementById('toolbar');
+let khLastY = window.scrollY;
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  if (y < 40 || y < khLastY - 4) khToolbar.classList.remove('toolbar-hidden');
+  else if (y > khLastY + 4) khToolbar.classList.add('toolbar-hidden');
+  khLastY = y;
+}, { passive: true });
 </script>
 </body>
 </html>

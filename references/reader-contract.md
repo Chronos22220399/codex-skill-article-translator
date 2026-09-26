@@ -26,16 +26,22 @@ skill checklist depend on them.
 
 ## Toolbar
 
-A sticky toolbar with, at minimum:
+A sticky toolbar with, at minimum, a segmented mode group (left) and the
+back-to-top/PDF actions (right). It auto-hides when scrolling down and
+reappears when scrolling up or near the top.
 
 ```html
-<div class="toolbar">
-  <button id="btn-summary" type="button">总结</button>
-  <button id="btn-zh" class="active" type="button">中文阅读</button>
-  <button id="btn-parallel" type="button">左右对照</button>
-  <button id="btn-glossary" type="button">术语说明</button>
-  <button id="btn-top" type="button">回到顶部</button>
-  <a href="../original.pdf" target="_blank">打开原 PDF</a>
+<div class="toolbar" id="toolbar">
+  <div class="toolbar-group">
+    <button id="btn-summary" type="button">总结</button>
+    <button id="btn-zh" class="active" type="button">中文阅读</button>
+    <button id="btn-parallel" type="button">左右对照</button>
+    <button id="btn-glossary" type="button">术语说明</button>
+  </div>
+  <div class="toolbar-actions">
+    <button id="btn-top" type="button">回到顶部</button>
+    <a href="../original.pdf" target="_blank">打开原 PDF</a>
+  </div>
 </div>
 ```
 
