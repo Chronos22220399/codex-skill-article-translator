@@ -443,6 +443,7 @@ main { min-width:0; background:var(--paper); min-height:100vh; padding:30px clam
 .toolbar-group button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
 .toolbar button:hover,.toolbar a:hover { border-color:var(--accent); color:var(--accent); }
 .toolbar-group button.active:hover { color:#fff; }
+.t-short { display:none; }
 h1,h2,h3,h4 { line-height:1.25; letter-spacing:0; scroll-margin-top:80px; }
 h1 { font-size:clamp(2rem,4vw,3.2rem); margin:28px 0 14px; max-width:820px; }
 h2 { border-top:2px solid var(--ink); padding-top:14px; margin:52px 0 18px; font-size:1.65rem; }
@@ -515,6 +516,7 @@ body.mode-parallel .source-caption.span-only { display:block; }
 @media (max-width:767px) { .shell, body.mode-parallel .shell { display:block; } aside, .toc-toggle, .toc-fab { display:none !important; } main { box-shadow:none; padding:18px clamp(14px,3vw,28px) 60px; } }
 @media (max-width:820px) { body { font-size:17px; } .toolbar { gap:6px; flex-wrap:nowrap; overflow-x:auto; padding:8px 0; } .toolbar-group { flex:0 0 auto; } .toolbar-actions { flex:0 0 auto; margin-left:0; } .toolbar button, .toolbar a { padding:8px 12px; font-size:14px; } h1 { font-size:clamp(1.7rem,6vw,2.4rem); } h2 { font-size:1.4rem; } h3 { font-size:1.18rem; } table { font-size:13px; min-width:520px; } .paper-figure img { max-height:none; } }
 @media (max-width:560px) { body { font-size:16px; } table { font-size:12px; min-width:480px; } .summary { padding:14px 16px 18px; } }
+@media (max-width:640px) { .t-full { display:none; } .t-short { display:inline; } .toolbar { gap:4px; } .toolbar-group { padding:2px; gap:1px; } .toolbar button, .toolbar a { padding:6px 8px; font-size:12px; } .toolbar-group button { padding:6px 9px; } }
 @media print { body { background:#fff; } aside,.toolbar { display:none; } .shell { display:block; } main { padding:0; box-shadow:none; } .paper-figure,.table-wrap { break-inside:avoid; } a { color:inherit; text-decoration:none; } body.mode-zh .source-left { display:none; } }
 </style>
 <script>
@@ -528,14 +530,14 @@ window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath:
 <main>
 <div class="toolbar" id="toolbar">
 <div class="toolbar-group">
-<button id="btn-summary" type="button">总结</button>
-<button id="btn-zh" class="active" type="button">中文阅读</button>
-<button id="btn-parallel" type="button">左右对照</button>
-<button id="btn-glossary" type="button">术语说明</button>
+<button id="btn-summary" type="button"><span class="t-full">总结</span><span class="t-short">总结</span></button>
+<button id="btn-zh" class="active" type="button"><span class="t-full">中文阅读</span><span class="t-short">中文</span></button>
+<button id="btn-parallel" type="button"><span class="t-full">左右对照</span><span class="t-short">对照</span></button>
+<button id="btn-glossary" type="button"><span class="t-full">术语说明</span><span class="t-short">术语</span></button>
 </div>
 <div class="toolbar-actions">
-<button id="btn-top" type="button">回到顶部</button>
-<a href="__PDF__" target="_blank">打开原 PDF</a>
+<button id="btn-top" type="button"><span class="t-full">回到顶部</span><span class="t-short">顶部</span></button>
+<a href="__PDF__" target="_blank"><span class="t-full">打开原 PDF</span><span class="t-short">原PDF</span></a>
 </div>
 </div>
 <button id="btn-toc" class="toc-fab" type="button" title="展开目录">☰ 目录</button>
