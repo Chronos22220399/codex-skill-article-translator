@@ -10,7 +10,7 @@ skill checklist depend on them.
 
 | Purpose | Convention | Example |
 |---|---|---|
-| Figure block | `id="fig-<n>"`, class `paper-figure` | `<figure class="paper-figure" id="fig-1">` |
+| Figure block | `id="fig-<n>"`, class `paper-figure`, optional `data-size="small\|medium\|full"` | `<figure class="paper-figure" id="fig-1">` |
 | Figure caption | text inside `<figcaption>` | `<figcaption>图 1：...</figcaption>` |
 | Table block | `id="table-<n>"`, class `table-wrap` | `<div class="table-wrap" id="table-2"><table>...` |
 | Table caption | pair block rendered next to the table | `<div class="pair pair-caption">` |

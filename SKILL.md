@@ -263,6 +263,8 @@ All figures referenced by translated content must be present.
 - Do not crop body text or `Fig. ...` caption text into the image. Captions belong in translated text.
 - For multi-panel figures, keep panels together when the original treats them as one numbered figure.
 - Generate a contact sheet or preview when cropping many figures, then inspect it before rebuilding output.
+- The crop must contain the **entire** figure — all panels, labels, axes, arrows, and legends — with no truncation. Verify every crop against the source page and re-crop any figure that is cut off (e.g. a code listing whose bottom lines are missing).
+- Set the display size per figure by its content: add `size` to the figure's alignment record — `small` for simple block diagrams, `medium`, or `full` for dense figures and code listings that need width to stay legible. A simple diagram must not be blown up to the full column; a small/simple diagram that renders huge is a sizing bug.
 
 ## Readable Layout Profile
 

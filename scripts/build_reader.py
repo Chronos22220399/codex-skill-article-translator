@@ -306,7 +306,9 @@ class Renderer:
                     rf'<a class="asset-ref tooltip" href="#fig-{number}"[^>]*>图 {number}</a>',
                     f"图 {number}", caption)
             image = f'<img src="{html.escape(path, quote=True)}" alt="图 {number}">' if path else ""
-            block = (f'<figure class="paper-figure span" id="fig-{number}">{image}'
+            size = str(record.get("size", "") or record.get("figure_size", "")).lower()
+            size_attr = f' data-size="{size}"' if size in ("small", "medium", "full") else ""
+            block = (f'<figure class="paper-figure span"{size_attr} id="fig-{number}">{image}'
                      f'<figcaption>{caption}</figcaption>'
                      f'<div class="source-caption">Source: {self.inline(en, mark=False)}</div></figure>')
             return block, None
@@ -457,13 +459,15 @@ body.mode-parallel .source-left p { text-indent:0; }
 .pair-note .translation-right blockquote p, blockquote p, figcaption p, .glossary p { text-indent:0; }
 a { color:var(--link); }
 code { padding:1px 4px; background:#eef2f3; border-radius:3px; font:0.92em ui-monospace,SFMono-Regular,Menlo,monospace; }
-pre { overflow:auto; padding:16px 18px; background:#1f2b30; color:#eef8f5; border-radius:5px; line-height:1.55; }
+pre { overflow:auto; padding:16px 18px; background:#1f2b30; color:#eef8f5; border-radius:5px; line-height:1.55; font-size:13px; }
 pre code { padding:0; background:transparent; border-radius:0; color:inherit; font:inherit; }
 blockquote { margin:18px 0; padding:11px 16px; border-left:4px solid var(--accent); background:var(--soft); color:#33484d; }
 ul,ol { padding-left:28px; }
 li { margin:4px 0; }
 .paper-figure { margin:28px 0; padding:12px 0; text-align:center; scroll-margin-top:84px; }
 .paper-figure img { display:block; max-width:100%; height:auto; max-height:720px; margin:auto; }
+.paper-figure[data-size="small"] img { max-width:360px; }
+.paper-figure[data-size="medium"] img { max-width:620px; }
 .paper-figure figcaption { max-width:760px; margin:10px auto 0; color:var(--muted); font-size:14px; text-align:left; }
 .source-caption { max-width:760px; margin:8px auto 0; color:var(--src); font-size:12.5px; text-align:left; }
 .table-wrap { overflow-x:auto; margin:20px 0; scroll-margin-top:84px; }
@@ -518,6 +522,7 @@ body.mode-parallel .source-caption.span-only { display:block; }
 @media (max-width:820px) { body { font-size:17px; } .toolbar { gap:6px; flex-wrap:nowrap; overflow-x:auto; padding:8px 0; } .toolbar-group { flex:0 0 auto; } .toolbar-actions { flex:0 0 auto; margin-left:0; } .toolbar button, .toolbar a { padding:8px 12px; font-size:14px; } h1 { font-size:clamp(1.7rem,6vw,2.4rem); } h2 { font-size:1.4rem; } h3 { font-size:1.18rem; } table { font-size:13px; min-width:520px; } .paper-figure img { max-height:none; } }
 @media (max-width:560px) { body { font-size:16px; } table { font-size:12px; min-width:480px; } .summary { padding:14px 16px 18px; } }
 @media (max-width:640px) { .t-full { display:none; } .t-short { display:inline; } .toolbar { gap:4px; } .toolbar-group { padding:2px; gap:1px; } .toolbar-actions { margin-left:auto; } .toolbar button, .toolbar a { padding:6px 9px; font-size:12px; } .toolbar-group button { padding:6px 9px; } }
+@media (min-width:1440px) { .shell { display:block; max-width:1000px; margin:0 auto; } aside { position:fixed; left:0; top:0; width:210px; height:100vh; } }
 @media print { body { background:#fff; } aside,.toolbar { display:none; } .shell { display:block; } main { padding:0; box-shadow:none; } .paper-figure,.table-wrap { break-inside:avoid; } a { color:inherit; text-decoration:none; } body.mode-zh .source-left { display:none; } }
 </style>
 <script>
