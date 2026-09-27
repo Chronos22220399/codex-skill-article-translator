@@ -432,7 +432,7 @@ body.mode-parallel .shell { grid-template-columns:245px minmax(0,1280px); }
 .toc-head strong { margin-bottom:0; }
 .toc-toggle { border:1px solid var(--line); background:var(--paper); color:var(--muted); border-radius:6px; padding:2px 9px; font-size:13px; line-height:1.4; cursor:pointer; }
 .toc-toggle:hover { color:var(--accent); border-color:var(--accent); }
-.toc-fab { position:fixed; left:max(16px, calc(50% - 528px)); top:72px; z-index:7; display:none; align-items:center; gap:6px; border:1px solid var(--line); background:var(--paper); color:var(--accent); border-radius:999px; padding:6px 12px; font-size:13px; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.12); }
+.toc-fab { position:fixed; left:18px; top:72px; z-index:7; display:none; align-items:center; gap:6px; border:1px solid var(--line); background:var(--paper); color:var(--accent); border-radius:999px; padding:6px 12px; font-size:13px; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.12); }
 body.toc-hidden .shell > aside { opacity:0; overflow:hidden; padding-left:0; padding-right:0; pointer-events:none; }
 body.toc-hidden .shell, body.toc-hidden.mode-parallel .shell { grid-template-columns:0 minmax(0,960px); gap:0; margin-left:0; }
 body.toc-hidden .toc-fab { display:inline-flex; }
