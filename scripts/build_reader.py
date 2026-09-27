@@ -432,7 +432,7 @@ body.mode-parallel .shell { grid-template-columns:245px minmax(0,1280px); }
 .toc-head strong { margin-bottom:0; }
 .toc-toggle { border:1px solid var(--line); background:var(--paper); color:var(--muted); border-radius:6px; padding:2px 9px; font-size:13px; line-height:1.4; cursor:pointer; }
 .toc-toggle:hover { color:var(--accent); border-color:var(--accent); }
-.toc-fab { position:fixed; left:14px; top:70px; z-index:7; display:none; align-items:center; gap:4px; border:1px solid var(--line); background:var(--paper); color:var(--muted); border-radius:999px; padding:4px 10px; font-size:12px; cursor:pointer; opacity:.45; transition:opacity .15s ease, color .15s ease, border-color .15s ease; }
+.toc-fab { position:fixed; left:12px; top:12px; z-index:7; display:none; align-items:center; gap:4px; border:1px solid var(--line); background:var(--paper); color:var(--muted); border-radius:999px; padding:4px 10px; font-size:12px; cursor:pointer; opacity:.45; transition:opacity .15s ease, color .15s ease, border-color .15s ease; }
 .toc-fab:hover { opacity:1; color:var(--accent); border-color:var(--accent); }
 body.toc-hidden .shell > aside { opacity:0; overflow:hidden; padding-left:0; padding-right:0; pointer-events:none; }
 body.toc-hidden .shell, body.toc-hidden.mode-parallel .shell { grid-template-columns:0 minmax(0,960px); gap:0; margin-left:0; }
