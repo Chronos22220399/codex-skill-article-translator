@@ -23,7 +23,10 @@ CAPTION_LINE = re.compile(r"^\*{0,2}(?:图|表|Figure|Table)\s*[0-9]+\s*[：:.�
 
 
 def slug(value: str) -> str:
-    return re.sub(r"[^a-zA-Z0-9\u4e00-\u9fff]+", "-", value).strip("-").lower() or "section"
+    return (
+        re.sub(r"[^a-zA-Z0-9\u4e00-\u9fff]+", "-", value).strip("-").lower()
+        or "section"
+    )
 
 
 def parse(lines: list[str]) -> list[dict]:
@@ -58,8 +61,15 @@ def parse(lines: list[str]) -> list[dict]:
             found = table_number(title)
             if found:
                 last_table = found
-            blocks.append({"id": nid("h"), "type": "heading", "level": level,
-                           "section": section, "translation": title})
+            blocks.append(
+                {
+                    "id": nid("h"),
+                    "type": "heading",
+                    "level": level,
+                    "section": section,
+                    "translation": title,
+                }
+            )
             i += 1
             continue
         if line.startswith("```"):
@@ -70,8 +80,15 @@ def parse(lines: list[str]) -> list[dict]:
                 code.append(lines[i])
                 i += 1
             i += 1
-            blocks.append({"id": nid("code"), "type": "code", "section": section,
-                           "language": language, "translation": "\n".join(code)})
+            blocks.append(
+                {
+                    "id": nid("code"),
+                    "type": "code",
+                    "section": section,
+                    "language": language,
+                    "translation": "\n".join(code),
+                }
+            )
             continue
         image = re.match(r"!\[([^]]*)\]\(([^)]+)\)", line)
         if image:
@@ -86,15 +103,41 @@ def parse(lines: list[str]) -> list[dict]:
                 i = lookahead
                 if number_match is None:
                     number_match = re.search(r"(?:图|Figure)\s*([0-9]+)", caption)
-            blocks.append({"id": nid("fig"), "type": "figure", "section": section,
-                           "figure": int(number_match.group(1)) if number_match else None,
-                           "path": path, "alt": alt, "translation": caption or alt})
+            blocks.append(
+                {
+                    "id": nid("fig"),
+                    "type": "figure",
+                    "section": section,
+                    "figure": int(number_match.group(1)) if number_match else None,
+                    "path": path,
+                    "alt": alt,
+                    "translation": caption or alt,
+                }
+            )
             i += 1
             continue
         if stripped.startswith("$$"):
-            blocks.append({"id": nid("eq"), "type": "equation", "section": section,
-                           "translation": stripped})
-            i += 1
+            if stripped == "$$" or not stripped.endswith("$$"):
+                equation_lines = [line.rstrip()]
+                i += 1
+                while i < len(lines):
+                    equation_lines.append(lines[i].rstrip())
+                    closes = lines[i].strip()
+                    i += 1
+                    if closes == "$$" or closes.endswith("$$"):
+                        break
+                equation = "\n".join(equation_lines)
+            else:
+                equation = stripped
+                i += 1
+            blocks.append(
+                {
+                    "id": nid("eq"),
+                    "type": "equation",
+                    "section": section,
+                    "translation": equation,
+                }
+            )
             continue
         if line.startswith("|"):
             rows = []
@@ -102,20 +145,33 @@ def parse(lines: list[str]) -> list[dict]:
                 rows.append(lines[i])
                 i += 1
             number = last_table
-            for ahead in lines[i:i + 4]:
+            for ahead in lines[i : i + 4]:
                 found = table_number(ahead)
                 if found:
                     number = found
                     break
-            blocks.append({"id": nid("table"), "type": "table", "section": section,
-                           "table": number, "translation": "\n".join(rows)})
+            blocks.append(
+                {
+                    "id": nid("table"),
+                    "type": "table",
+                    "section": section,
+                    "table": number,
+                    "translation": "\n".join(rows),
+                }
+            )
             continue
         if CAPTION_LINE.match(stripped):
             found = table_number(stripped)
             if found:
                 last_table = found
-            blocks.append({"id": nid("cap"), "type": "caption", "section": section,
-                           "translation": stripped})
+            blocks.append(
+                {
+                    "id": nid("cap"),
+                    "type": "caption",
+                    "section": section,
+                    "translation": stripped,
+                }
+            )
             i += 1
             continue
         if stripped.startswith("> "):
@@ -123,8 +179,14 @@ def parse(lines: list[str]) -> list[dict]:
             while i < len(lines) and lines[i].startswith("> "):
                 items.append(lines[i][2:].strip())
                 i += 1
-            blocks.append({"id": nid("quote"), "type": "reference-note", "section": section,
-                           "translation": "\n".join(items)})
+            blocks.append(
+                {
+                    "id": nid("quote"),
+                    "type": "reference-note",
+                    "section": section,
+                    "translation": "\n".join(items),
+                }
+            )
             continue
         if line.startswith("- ") or re.match(r"^\d+\.\s", line):
             ordered = bool(re.match(r"^\d+\.\s", line))
@@ -135,28 +197,49 @@ def parse(lines: list[str]) -> list[dict]:
                 if not ordered and not current.startswith("- "):
                     break
                 item = re.sub(r"^(?:- |\d+\.\s)", "", current).strip()
-                blocks.append({"id": nid("li"), "type": "list-item", "section": section,
-                               "translation": item, "ordered": ordered})
+                blocks.append(
+                    {
+                        "id": nid("li"),
+                        "type": "list-item",
+                        "section": section,
+                        "translation": item,
+                        "ordered": ordered,
+                    }
+                )
                 i += 1
             continue
-        blocks.append({"id": nid("p"), "type": "paragraph", "section": section,
-                       "translation": stripped})
+        blocks.append(
+            {
+                "id": nid("p"),
+                "type": "paragraph",
+                "section": section,
+                "translation": stripped,
+            }
+        )
         i += 1
 
     return blocks
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build a stable translated-block inventory.")
-    parser.add_argument("--translation", required=True, help="Path to the translated Markdown file.")
-    parser.add_argument("--output", required=True, help="Path to write the inventory JSON.")
+    parser = argparse.ArgumentParser(
+        description="Build a stable translated-block inventory."
+    )
+    parser.add_argument(
+        "--translation", required=True, help="Path to the translated Markdown file."
+    )
+    parser.add_argument(
+        "--output", required=True, help="Path to write the inventory JSON."
+    )
     args = parser.parse_args()
 
     source = Path(args.translation)
     blocks = parse(source.read_text(encoding="utf-8").splitlines())
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(blocks, ensure_ascii=False, indent=1), encoding="utf-8")
+    output.write_text(
+        json.dumps(blocks, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
 
     from collections import Counter
 
