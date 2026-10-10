@@ -76,19 +76,53 @@ If any required deliverable cannot be produced, do not silently downgrade to tex
 
 Use `text-only` mode only when the user explicitly asks for plain translation without HTML, files, figures, or alignment. Even in `text-only`, preserve formulas, citations, and terminology decisions in the response.
 
+## Completeness Contract (read this before translating)
+
+A translation here is not a summary. If the source has 100 paragraphs and 40 formulas,
+the translation has 100 paragraphs and 40 formulas. Condensing is the number-one failure
+of this skill, so treat completeness as a hard requirement, not a nice-to-have.
+
+Do not:
+
+- merge paragraphs in a way that drops content (two source paragraphs turned into one
+  shorter paragraph means one paragraph is gone);
+- skip the "boring" parts: implementation details, benchmarks, related work, proofs,
+  parameter lists, footnotes;
+- replace a formula, a derivation, or a protocol step with a sentence describing it;
+- drop numbered equations, tables, figures, captions, algorithms, or references;
+- turn a formula's symbols into words.
+
+Do:
+
+- keep every source block. When in doubt, translate it.
+- simplify only the sentence structure: split long sentences, untangle clauses,
+  reorder for Chinese. That is the only kind of simplification allowed. Information
+  never gets removed.
+- render every formula as LaTeX, symbols unchanged.
+- rebuild every table with all its rows, columns, and numbers.
+
+Before you say "done": open `source.md` and the translation side by side, section by
+section. If any paragraph or formula in the source has no counterpart in the
+translation, you are not done. Then run `scripts/audit_coverage.py` and the independent
+review.
+
+Why this rule exists: models summarize long papers by default, and the renderer's
+verifier only checks structure, so it will happily pass a translation that dropped half
+the content. This contract plus `audit_coverage.py` is what stops that.
+
 ## Workflow
 
 1. Inspect the source file and identify title, abstract, table of contents, section boundaries, figures, tables, equations, and references.
 2. Extract source text into page and section files. Preserve equation numbers, figure numbers, table numbers, citations, original section order, and stable paragraph/block ids.
 3. Create or update `glossary.md` with key terms, translation policy, and short explanations for high-value specialist terms. Use consistent translations for recurring concepts and note uncertain terms.
-4. Create or update `style-guide.md`: academic Chinese, faithful to original logic, no unexplained simplification, preserve symbols and equation labels.
+4. Create or update `style-guide.md`: academic Chinese, faithful to original logic, no omission and no condensation (sentence-level simplification only), preserve symbols and equation labels.
 5. Translate in manageable units, usually title/abstract first and then one chapter or section at a time.
 6. When continuing a translation across sessions, first read the existing project context: `glossary.md`, `style-guide.md`, `chapter-index.md`, `summary.md` if present, completed files in `translation/`, the current reader HTML, `alignment.json`, and `figure-map.json` if present. Do not continue from memory alone.
 7. Maintain `alignment.json` for paragraph-level source/translation pairing whenever original-vs-translation comparison is requested or useful for future review.
 8. Maintain `figure-map.json` for each covered figure, including the figure number, source page or extraction source, final relative image path, caption block id, crop status, and unresolved issues.
 9. After each unit, generate or update the readable HTML file unless the user explicitly requested `text-only`. Apply the Interactive Reader Contract and, when the user wants one, build the Summary Panel.
-10. Verify formulas, figures, captions, links, alignment, required deliverables, and missing text before reporting completion.
-11. Run an independent review agent over the finished unit (see Independent Review) and record its findings and your fixes in `verification-report.md`.
+10. Verify formulas, figures, captions, links, alignment, required deliverables, and missing text before reporting completion. Run `python scripts/audit_coverage.py --source source.md --translation translation/<unit>.md` and fix every hard gap it reports.
+11. Run an independent review agent over the finished unit (see Independent Review), including a source-vs-translation coverage diff, and record its findings and your fixes in `verification-report.md`.
 
 ## Deterministic Reader Pipeline (Required)
 
@@ -125,13 +159,29 @@ render it with the bundled scripts. The full data contract is in
    and the summary panel. Styling and behavior are fixed by the builder so every model
    gets the same result.
 
-4. Validate with the bundled verifier (below) before reporting completion.
+4. Audit coverage against the source:
+
+   ```bash
+   python scripts/audit_coverage.py --source source.md --translation translation/article-zh.md
+   ```
+
+   Fix every hard gap (a missing section, no formulas at all, a large length shortfall)
+   before continuing. The reader verifier cannot see missing content; this step is what
+   catches it.
+
+5. Validate with the bundled verifier (below) before reporting completion.
+
+Multi-line display math: keep a `$$ ... $$` block as ONE block. An `\begin{aligned}`
+environment must stay inside a single `$$...$$` and must not be split across blank
+lines. `make_inventory.py` reads the whole block, so a split environment reaches
+MathJax broken.
 
 If a project deviates from the schema, fix the data, not the renderer. If the reader
 looks wrong, regenerate it from `alignment.json`; do not patch the HTML by hand.
 
 ## Translation Rules
 
+- Do not omit. Every source block must appear in the translation. This is the hard rule; see the Completeness Contract above.
 - Preserve technical precision over fluency when there is tension.
 - Keep equation labels, figure numbers, table numbers, citation numbers, and section numbers aligned with the source.
 - Translate captions as text; do not bake translated captions into images.
@@ -340,11 +390,22 @@ When the source is long, or the user asks for a summary / "总结" button:
 - The summary may link citations and use MathJax, but it must not duplicate or replace the full translation.
 - Record the summary deliverable in `verification-report.md`.
 
-### Independent Review
+### Independent Review (mandatory)
 
-- After a unit is translated and the reader is rebuilt, run a separate review agent (typically a subagent) that reads the extracted English source and the Chinese translation, then reports missing, duplicated, mistranslated, or malformed content plus terminology-policy violations.
-- Fix what the review finds, then record the review outcome and fixes in `verification-report.md`.
-- Do not claim completion based only on self-review.
+Do not skip this. Self-review is not enough: the failure this skill guards against is a
+translation that reads fine but quietly dropped content.
+
+- After a unit is translated and the reader is rebuilt, run a separate review agent
+  (typically a subagent) over the extracted source and the translation together.
+- The review must include a coverage diff, not just a read-through. Ask the reviewer to:
+  - go section by section and list any source paragraph, formula, derivation, table,
+    figure, caption, footnote, or reference that has no counterpart in the translation;
+  - check every numbered equation and formula for both presence and identical symbols;
+  - check that tables, figures, and protocols are complete, not summarized.
+- Fix what the review finds, re-run `audit_coverage.py`, then record the review outcome
+  and the fixes in `verification-report.md`.
+- If no review agent is available, say so and mark the coverage diff as not done. Do not
+  claim the unit is complete without it.
 
 A concrete implementation of this contract, including id/class conventions and the highlight/tooltip JavaScript, is in `references/reader-contract.md`.
 
@@ -383,6 +444,7 @@ The skill ships the renderer, the inventory parser, and the checker. Use them in
 - `scripts/make_alignment_skeleton.py` — fixed-shape `alignment.json` skeleton, with `--merge` to preserve filled sources.
 - `scripts/build_reader.py PROJECT_DIR [--output NAME] [--title T] [--pdf P]` — deterministic interactive reader builder.
 - `scripts/verify_translation_project.py PROJECT_DIR [--html FILE]` — mechanical checker.
+- `scripts/audit_coverage.py --source SOURCE.md --translation TRANSLATION` — coverage checker; the verifier checks structure, this one checks that nothing was dropped.
 - `scripts/publish_to_site.sh PROJECT_DIR [SITE_REPO]` — copy a finished reader into the khronos-hub site, rebuild, commit, and push (see `references/merge-into-site.md`).
 
 ```bash
@@ -392,12 +454,15 @@ python scripts/build_reader.py PROJECT_DIR --title "..." --pdf ../original.pdf
 python scripts/verify_translation_project.py PROJECT_DIR
 ```
 
-The verifier checks equation sources, `pair-eq-*` source-left formula rendering, image references, `term-*` links, and MathJax configuration. Record its output in `verification-report.md`.
+The verifier checks equation sources, `pair-eq-*` source-left formula rendering, image references, `term-*` links, and MathJax configuration. Record its output in `verification-report.md`. Then run `audit_coverage.py` and record its result too; a project is not verified until both the structure check and the coverage check pass.
 
 ## Verification Checklist
 
 Before saying a chapter or output is complete, verify:
 
+- The completeness contract was honored: no source paragraph, equation, derivation, table, figure, caption, protocol, footnote, or reference is missing.
+- `scripts/audit_coverage.py` was run and reports no hard gaps, and its output is recorded in `verification-report.md`.
+- An independent review with a coverage diff was run; its findings and fixes are recorded in `verification-report.md`.
 - The active output profile is clear: `full-reading-output` by default, or explicit user-requested `text-only`.
 - In `full-reading-output`, the result is not only Chinese translation text plus `glossary.md`.
 - Updated deliverables exist as applicable: `translation/*.md`, `glossary.md`, `style-guide.md`, `alignment.json`, `figure-map.json`, reader-style HTML, figure assets, and `verification-report.md`.

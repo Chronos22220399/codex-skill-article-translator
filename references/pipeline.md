@@ -10,7 +10,10 @@ Do not hand-write the reader HTML, and do not invent new DOM ids or classes.
    `source-pages/`) with stable block ids. Preserve equation/figure/table/citation
    numbers and section order.
 2. **Translate into Markdown.** Keep `translation/<unit>.md` as the editable source
-   of truth. Follow `glossary.md` and `style-guide.md`.
+   of truth. Follow `glossary.md` and `style-guide.md`. Translate every source
+   paragraph, formula, table, figure caption, protocol, footnote, and reference.
+   Make sentences easier to read by splitting or reordering them; never make them
+   shorter by dropping information.
 3. **Build the block inventory.**
    ```bash
    python scripts/make_inventory.py --translation translation/article-zh.md \
@@ -28,20 +31,28 @@ Do not hand-write the reader HTML, and do not invent new DOM ids or classes.
    equations put the canonical LaTeX in `source`; set `table`/`figure` numbers where
    they are missing. Re-run with `--merge` after editing the translation to preserve
    already-filled sources.
-5. **Create the supporting data:** `references.json`, `figure-map.json`,
+5. **Audit coverage before rendering.**
+   ```bash
+   python scripts/audit_coverage.py --source source.md \
+       --translation translation/article-zh.md --output coverage-report.md
+   ```
+   This catches the common failure where a long implementation section or a group of
+   formulas quietly disappears. It is a safety net, not a replacement for the
+   independent source-vs-translation review.
+6. **Create the supporting data:** `references.json`, `figure-map.json`,
    `glossary.md`, and (when a summary is wanted) `summary.md`.
-6. **Build the reader.**
+7. **Build the reader.**
    ```bash
    python scripts/build_reader.py PROJECT_DIR \
        --title "..." --pdf ../original.pdf
    ```
    Default output is `PROJECT_DIR/translation-reading.html`.
-7. **Validate.**
+8. **Validate.**
    ```bash
    python scripts/verify_translation_project.py PROJECT_DIR
    ```
    Fix every reported error before continuing.
-8. **Independent review.** Run a separate review agent over the extraction and the
+9. **Independent review.** Run a separate review agent over the extraction and the
    translation (missing/duplicated/mistranslated/malformed content, terminology
    violations), fix what it finds, and record the outcome in `verification-report.md`.
 
@@ -94,6 +105,9 @@ Rules:
 - `source` is the real source text. For `type: equation` it MUST be renderable LaTeX
   (with `$$...$$` or `\tag{...}` when numbered). Never use prose placeholders such as
   "Definitions of ..." or "formulas".
+- A multi-line display equation must stay in one inventory block: keep the opening
+  and closing `$$` around the whole `\begin{aligned}...\end{aligned}` environment.
+  Splitting it into paragraph blocks leaves MathJax with broken delimiters.
 - Figure records: `type: "caption"` (or `"figure"`) with a numeric `figure` field.
 - Table records: `type: "table"` with a numeric `table` field; `translation` holds the
   Markdown table that the builder converts to real HTML.
